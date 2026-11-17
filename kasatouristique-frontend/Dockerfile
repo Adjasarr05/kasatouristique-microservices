@@ -4,7 +4,7 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm install
 COPY . .
-RUN npm run build -- --configuration production
+RUN npx ng build --configuration production && node copy-dist.js
 
 # Étape 2 : Runtime léger Nginx Alpine
 FROM nginx:alpine
