@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: pageHead('Agenda du guide')}"></head>
+<body>
+
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<section class="page-banner">
+    <div class="container d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+        <div>
+            <h1 class="h2 fw-bold mb-1">Agenda personnel du guide</h1>
+            <p class="mb-0 text-white-50">
+                Bonjour <strong class="text-white" th:text="${guide.nom}">Guide</strong> — Programme du
+                <span th:text="${#temporals.format(dateAujourdhui, 'dd/MM/yyyy')}">aujourd'hui</span>
+            </p>
+        </div>
+        <div class="d-flex gap-2">
+            <a th:href="@{/guide/profil}" class="btn btn-outline-light rounded-pill px-3">Mon profil pro</a>
+            <a th:href="@{/guide/avis}" class="btn btn-gold rounded-pill px-3">Avis &amp; Réponses</a>
+        </div>
+    </div>
+</section>
+
+<main class="container mb-5">
+    <h3 class="fw-bold mb-3">📅 Visites du jour</h3>
+    <div class="row g-4 mb-5">
+        <div class="col-md-6 col-lg-4" th:each="v : ${visitesDuJour}">
+            <div class="feature-card p-4 h-100">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="badge bg-success rounded-pill px-3 py-2"
+                          th:text="${#temporals.format(v.dateHeureDebut, 'HH:mm')}">09:30</span>
+                    <span class="badge bg-warning-subtle text-dark rounded-pill px-3 py-2"
+                          th:text="${v.placesReservees} + ' / ' + ${v.placesMax} + ' inscrit(s)'">1 / 12</span>
+                </div>
+                <h5 class="fw-bold mb-1" th:text="${v.site != null ? v.site.nom : 'Site touristique'}">Site</h5>
+                <p class="small text-muted mb-2" th:if="${v.circuit}" th:text="'Circuit : ' + ${v.circuit.nom}">Circuit</p>
+                <p class="small mb-0">
+                    👤 Guide assigné : <strong th:text="${v.guide != null ? v.guide : guide.nom}">Guide</strong><br/>
+                    ⏱️ Durée : <strong th:text="${v.dureeMinutes} + ' min'">90 min</strong>
+                </p>
+            </div>
+        </div>
+        <div th:if="${#lists.isEmpty(visitesDuJour)}" class="col-12">
+            <div class="alert alert-light border rounded-4 text-muted">
+                Aucune visite programmée pour aujourd'hui.
+            </div>
+        </div>
+    </div>
+
+    <h3 class="fw-bold mb-3">🗓️ Toutes mes visites planifiées</h3>
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead class="table-light">
+            <tr>
+                <th>Date &amp; Heure</th>
+                <th>Site</th>
+                <th>Circuit</th>
+                <th>Participants</th>
+                <th>Statut</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="v : ${toutesMesVisites}">
+                <td th:text="${#temporals.format(v.dateHeureDebut, 'dd/MM/yyyy à HH:mm')}">Date</td>
+                <td th:text="${v.site != null ? v.site.nom : '-'}">Site</td>
+                <td th:text="${v.circuit != null ? v.circuit.nom : 'Visite indépendante'}">Circuit</td>
+                <td th:text="${v.placesReservees} + ' / ' + ${v.placesMax}">0 / 10</td>
+                <td><span class="badge bg-success-subtle text-success" th:text="${v.statut}">PLANIFIEE</span></td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(toutesMesVisites)}">
+                <td colspan="5" class="text-center text-muted py-4">Aucune visite assignée à votre nom pour le moment.</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+</body>
+</html>

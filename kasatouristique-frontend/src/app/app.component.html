@@ -1,0 +1,128 @@
+<header>
+  <nav class="navbar navbar-expand-xl navbar-dark shadow-sm sticky-top">
+    <div class="container">
+      <a class="navbar-brand fw-bold d-flex align-items-center" routerLink="/">
+        <span class="brand-kasa">Kasa</span><span class="brand-touristique">Touristique</span>
+      </a>
+
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#kasaNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="kasaNav">
+        <ul class="navbar-nav ms-auto align-items-xl-center">
+          <li class="nav-item">
+            <a class="nav-link" routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">Accueil</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" routerLink="/catalogue" routerLinkActive="active">Catalogue</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" routerLink="/categories" routerLinkActive="active">Catégories</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" routerLink="/circuits" routerLinkActive="active">Circuits</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" routerLink="/visites" routerLinkActive="active">Visites</a>
+          </li>
+
+          <!-- Menu déroulant sous l'icône de compte -->
+          <li class="nav-item dropdown ms-xl-2">
+            <button class="btn btn-light text-dark rounded-pill px-3 py-1 shadow-sm d-inline-flex align-items-center dropdown-toggle" type="button" id="userAccountDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-person-circle me-1" viewBox="0 0 16 16">
+                <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>
+                <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z"/>
+              </svg>
+              <span class="small fw-semibold ms-1">{{ utilisateurConnecte ? (utilisateurConnecte.nom || utilisateurConnecte.email) : 'Compte' }}</span>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2 rounded-3" aria-labelledby="userAccountDropdown">
+              <li *ngIf="!utilisateurConnecte">
+                <a class="dropdown-item py-2 d-flex align-items-center fw-semibold text-primary" routerLink="/login">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-in-right me-2" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M6 3.5a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v9a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-2a.5.5 0 0 0-1 0v2A1.5 1.5 0 0 0 6.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 14.5 2h-8A1.5 1.5 0 0 0 5 3.5v2a.5.5 0 0 0 1 0z"/>
+                    <path fill-rule="evenodd" d="M11.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 0 0-.708.708L10.293 7.5H1.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708z"/>
+                  </svg>
+                  Connexion
+                </a>
+              </li>
+              <li *ngIf="!utilisateurConnecte">
+                <a class="dropdown-item py-2 d-flex align-items-center" routerLink="/register">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-plus-fill me-2 text-success" viewBox="0 0 16 16">
+                    <path d="M1 14s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1zm5-6a3 3 0 1 0 0-6 3 3 0 0 0 0 6"/>
+                    <path fill-rule="evenodd" d="M13.5 5a.5.5 0 0 1 .5.5V7h1.5a.5.5 0 0 1 0 1H14v1.5a.5.5 0 0 1-1 0V8h-1.5a.5.5 0 0 1 0-1H13V5.5a.5.5 0 0 1 .5-.5"/>
+                  </svg>
+                  Créer un compte
+                </a>
+              </li>
+
+              <li *ngIf="utilisateurConnecte" class="px-3 py-2 text-muted small border-bottom bg-light rounded-top">
+                Connecté en tant que :<br/>
+                <strong class="text-dark">{{ utilisateurConnecte.email }}</strong>
+              </li>
+              <li *ngIf="utilisateurConnecte">
+                <a class="dropdown-item py-2" routerLink="/reservations">Mes réservations</a>
+              </li>
+              <li *ngIf="utilisateurConnecte"><hr class="dropdown-divider my-1"></li>
+              <li *ngIf="utilisateurConnecte">
+                <a class="dropdown-item py-2 text-danger d-flex align-items-center" href="javascript:void(0)" (click)="deconnexion()">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-right me-2" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M10 12.5a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v2a.5.5 0 0 0 1 0v-2A1.5 1.5 0 0 0 9.5 2h-8A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-2a.5.5 0 0 0-1 0z"/>
+                    <path fill-rule="evenodd" d="M15.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 0 0-.708.708L14.293 7.5H5.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708z"/>
+                  </svg>
+                  Déconnexion
+                </a>
+              </li>
+            </ul>
+          </li>
+
+          <!-- Bouton Réserver doré -->
+          <li class="nav-item">
+            <a routerLink="/visites" class="btn btn-outline-gold rounded-pill px-4 ms-xl-2">Réserver</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+</header>
+
+<main class="flex-grow-1">
+  <router-outlet></router-outlet>
+</main>
+
+<footer class="site-footer pt-5 pb-4 mt-5">
+  <div class="container">
+    <div class="row g-4 pb-4 border-bottom border-light border-opacity-10">
+      <div class="col-lg-5">
+        <h5 class="text-white fw-bold mb-2">
+          <span class="brand-kasa">Kasa</span><span class="brand-touristique">Touristique</span>
+        </h5>
+        <p class="small text-white-50 mb-0">
+          Portail officiel de valorisation du patrimoine culturel, naturel, religieux et historique de la Basse-Casamance :
+          départements de Ziguinchor, Oussouye et Bignona.
+        </p>
+      </div>
+      <div class="col-6 col-lg-3">
+        <h6 class="text-white fw-semibold mb-2">Explorer</h6>
+        <ul class="list-unstyled small mb-0 footer-links">
+          <li><a routerLink="/catalogue">Catalogue des sites</a></li>
+          <li><a routerLink="/circuits">Circuits touristiques</a></li>
+          <li><a routerLink="/visites">Visites guidées</a></li>
+          <li><a routerLink="/reservations">Mes réservations</a></li>
+        </ul>
+      </div>
+      <div class="col-6 col-lg-4">
+        <h6 class="text-white fw-semibold mb-2">Territoires couverts</h6>
+        <ul class="list-unstyled small text-white-50 mb-0">
+          <li>📍 Ziguinchor : Escale, Boucotte, Djibélor, Enampore</li>
+          <li>📍 Oussouye : Carabane, Cap Skirring, Mlomp, Égueye</li>
+          <li>📍 Bignona : Kafountine, Îles Karone, Kalissaye</li>
+        </ul>
+      </div>
+    </div>
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-center pt-3 small text-white-50">
+      <span>&copy; 2026 KasaTouristique — Mame Khoudia Gueye, Adja Fatou Binetou Sarr, Adama Diop (UASZ)</span>
+      <span>Sous la direction du Dr Lamine FATY</span>
+    </div>
+  </div>
+</footer>

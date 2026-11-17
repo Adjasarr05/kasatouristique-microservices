@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: pageHead('Profil professionnel du guide')}"></head>
+<body>
+
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<section class="page-banner">
+    <div class="container d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+        <div>
+            <h1 class="h2 fw-bold mb-1">Profil professionnel du guide</h1>
+            <p class="mb-0 text-white-50">Gérez vos spécialités, langues parlées, zone d'intervention et disponibilité.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a th:href="@{/guide/agenda}" class="btn btn-outline-light rounded-pill px-3">Mon agenda</a>
+            <a th:href="@{/guide/avis}" class="btn btn-gold rounded-pill px-3">Avis &amp; Réponses</a>
+        </div>
+    </div>
+</section>
+
+<main class="container mb-5" style="max-width: 780px;">
+    <div class="alert alert-success rounded-4" th:if="${messageSucces}" th:text="${messageSucces}"></div>
+
+    <div class="feature-card p-4">
+        <div class="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom">
+            <div>
+                <h4 class="fw-bold mb-0" th:text="${guide.nom}">Nom du guide</h4>
+                <small class="text-muted" th:text="${guide.email}">email@ziguinchor.sn</small>
+            </div>
+            <span class="badge bg-success rounded-pill px-3 py-2" th:text="'Statut : ' + ${guide.statutValidation}">VALIDE</span>
+        </div>
+
+        <form th:action="@{/guide/profil}" method="post">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Nom complet</label>
+                    <input type="text" name="nom" th:value="${guide.nom}" class="form-control" required/>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Téléphone professionnel</label>
+                    <input type="text" name="telephone" th:value="${guide.telephone}" class="form-control" placeholder="+221 77 ..."/>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Spécialité</label>
+                    <input type="text" name="specialite" th:value="${guide.specialite}" class="form-control" placeholder="Histoire, Écotourisme..."/>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Langues parlées</label>
+                    <input type="text" name="languesParlees" th:value="${guide.languesParlees}" class="form-control" placeholder="Français, Diola, Anglais..."/>
+                </div>
+                <div class="col-md-8">
+                    <label class="form-label fw-semibold">Zone d'intervention</label>
+                    <input type="text" name="zoneIntervention" th:value="${guide.zoneIntervention}" class="form-control" placeholder="Ziguinchor, Oussouye, Carabane..."/>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold">Années d'expérience</label>
+                    <input type="number" name="anneesExperience" th:value="${guide.anneesExperience}" class="form-control" min="0" max="60"/>
+                </div>
+                <div class="col-12">
+                    <label class="form-label fw-semibold">Biographie professionnelle</label>
+                    <textarea name="biographie" class="form-control" rows="4" th:text="${guide.biographie}" placeholder="Présentez votre parcours et vos atouts..."></textarea>
+                </div>
+                <div class="col-12">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" name="disponible" id="dispoSwitch" th:checked="${guide.disponible}"/>
+                        <label class="form-check-label fw-semibold" for="dispoSwitch">Disponible pour de nouvelles visites guidées</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-4 d-flex gap-2">
+                <button type="submit" class="btn btn-success rounded-pill px-4">Enregistrer mon profil</button>
+                <a th:href="@{/guide/agenda}" class="btn btn-outline-secondary rounded-pill px-4">Retour à l'agenda</a>
+            </div>
+        </form>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+</body>
+</html>

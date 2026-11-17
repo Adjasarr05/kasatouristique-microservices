@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: pageHead('Mes réservations')}"></head>
+<body>
+
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<section class="page-banner">
+    <div class="container d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+        <div>
+            <h1 class="h2 fw-bold mb-1">Mes réservations</h1>
+            <p class="mb-0 text-white-50">Retrouvez vos billets confirmés, les détails de vos réservations et vos QR codes d'accès.</p>
+        </div>
+        <a th:href="@{/visites}" class="btn btn-gold rounded-pill px-4">+ Réserver une visite</a>
+    </div>
+</section>
+
+<main class="container mb-5">
+    <div class="alert alert-success rounded-4" th:if="${messageSucces}" th:text="${messageSucces}"></div>
+    <div class="alert alert-success rounded-4" th:if="${param.avis}">Merci ! Votre note et votre commentaire sur la visite ont bien été publiés.</div>
+
+    <div class="row g-4">
+        <div class="col-md-6 col-lg-4" th:each="r : ${reservations}">
+            <div class="feature-card h-100 d-flex flex-column">
+                <div class="p-4 flex-grow-1">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="badge bg-success rounded-pill px-3 py-2" th:text="${r.statut}">CONFIRME</span>
+                        <span class="badge bg-warning-subtle text-dark rounded-pill px-3 py-2 fw-semibold"
+                              th:text="${(r.nombrePlaces != null ? r.nombrePlaces : 1)} + ' place(s)'">1 place(s)</span>
+                    </div>
+
+                    <h5 class="fw-bold mb-1" th:text="${r.visite != null and r.visite.site != null ? r.visite.site.nom : 'Visite guidée'}">Site</h5>
+                    <p class="small text-muted mb-3"
+                       th:text="${r.visite != null and r.visite.dateHeureDebut != null ? #temporals.format(r.visite.dateHeureDebut, 'dd/MM/yyyy à HH:mm') : 'Date à confirmer'}">Date</p>
+
+                    <div class="p-3 rounded-3 bg-light small d-grid gap-1 mb-3">
+                        <div>
+                            👤 <strong>Réservé par :</strong>
+                            <span th:text="${r.nomReservant != null and !r.nomReservant.isBlank() ? r.nomReservant : (r.touriste != null ? r.touriste.nom : 'Visiteur')}">Nom</span>
+                        </div>
+                        <div th:if="${r.emailReservant != null or (r.touriste != null and r.touriste.email != null)}">
+                            ✉️ <strong>Email :</strong>
+                            <span th:text="${r.emailReservant != null and !r.emailReservant.isBlank() ? r.emailReservant : r.touriste.email}">Email</span>
+                        </div>
+                        <div th:if="${r.telephone != null and !r.telephone.isBlank()}">
+                            📞 <strong>Téléphone :</strong> <span th:text="${r.telephone}">Téléphone</span>
+                        </div>
+                        <div th:if="${r.visite != null and r.visite.guide != null and !r.visite.guide.isBlank()}">
+                            🧭 <strong>Guide :</strong> <span th:text="${r.visite.guide}">Guide</span>
+                        </div>
+                        <div th:if="${r.visite != null and r.visite.circuit != null}">
+                            🗺️ <strong>Circuit :</strong> <span th:text="${r.visite.circuit.nom}">Circuit</span>
+                        </div>
+                        <div>
+                            💳 <strong>Paiement :</strong>
+                            <span th:text="${r.modePaiement != null and !r.modePaiement.isBlank() ? r.modePaiement : 'Mobile Money'}">Wave</span>
+                            —
+                            <strong class="text-success"
+                                    th:text="${r.montant != null and r.montant > 0 ? #numbers.formatDecimal(r.montant, 0, 'WHITESPACE', 0, 'POINT') + ' FCFA' : 'Gratuit'}">12 000 FCFA</strong>
+                        </div>
+                        <div th:if="${r.dateReservation != null}" class="text-muted">
+                            🕒 Réservé le <span th:text="${#temporals.format(r.dateReservation, 'dd/MM/yyyy à HH:mm')}">Date</span>
+                        </div>
+                        <div th:if="${r.commentaire != null and !r.commentaire.isBlank()}" class="fst-italic text-secondary mt-1">
+                            « <span th:text="${r.commentaire}">Commentaire</span> »
+                        </div>
+                    </div>
+
+                    <div class="text-center p-3 rounded-3 bg-light border mb-2" th:if="${r.qrCodeHash != null}">
+                        <a th:href="@{/reservations/billet/{code}(code=${r.qrCodeHash})}"
+                           title="Cliquez pour afficher le billet officiel et le site réservé">
+                            <img th:src="${r.urlQrCode}"
+                                 alt="QR code du billet" class="img-fluid rounded border p-1 bg-white" style="max-width: 155px;"/>
+                        </a>
+                        <div class="fw-bold text-success small mt-2" th:text="${r.qrCodeHash}">ZIG-2026-XXXX</div>
+                        <p class="text-muted mb-2" style="font-size: .76rem;">
+                            📱 Scannez pour afficher : <strong th:text="${r.visite != null and r.visite.site != null ? r.visite.site.nom : 'Site réservé'}">Site réservé</strong>, Date, Guide &amp; Places
+                        </p>
+                        <a th:href="@{/reservations/billet/{code}(code=${r.qrCodeHash})}"
+                           class="btn btn-sm btn-success rounded-pill px-3">
+                            Voir le billet &amp; le site réservé
+                        </a>
+                    </div>
+                </div>
+
+                <div class="px-4 py-3 bg-light border-top text-center d-grid gap-2">
+                    <div th:if="${r.visite != null and r.visite.site != null}">
+                        <button type="button" class="btn btn-outline-success btn-sm rounded-pill px-3 w-100"
+                                data-bs-toggle="collapse" th:attr="data-bs-target='#avisBox' + ${r.id}">
+                            ★ Noter et commenter ma visite
+                        </button>
+                        <div class="collapse mt-2 text-start" th:id="'avisBox' + ${r.id}">
+                            <form th:action="@{/sites/{id}/avis(id=${r.visite.site.id})}" method="post" class="p-2 bg-white rounded-3 border">
+                                <input type="hidden" name="redirectTo" value="reservations"/>
+                                <input type="hidden" name="auteur" th:value="${r.nomReservant != null ? r.nomReservant : 'Visiteur'}"/>
+                                <div class="mb-2">
+                                    <select name="note" class="form-select form-select-sm">
+                                        <option value="5">5 ★ - Excellent</option>
+                                        <option value="4">4 ★ - Très bien</option>
+                                        <option value="3">3 ★ - Correct</option>
+                                        <option value="2">2 ★ - Moyen</option>
+                                        <option value="1">1 ★ - Décevant</option>
+                                    </select>
+                                </div>
+                                <div class="mb-2">
+                                    <textarea name="commentaire" class="form-control form-control-sm" rows="2" placeholder="Votre avis sur cette visite..." required></textarea>
+                                </div>
+                                <button type="submit" class="btn btn-success btn-sm rounded-pill w-100">Publier mon avis</button>
+                            </form>
+                        </div>
+                    </div>
+                    <form th:action="@{/reservations/annuler/{id}(id=${r.id})}" method="post">
+                        <button type="submit" class="btn btn-outline-danger btn-sm rounded-pill px-4 w-100"
+                                onclick="return confirm('Confirmer l’annulation ? Cette réservation sera supprimée de votre liste et les places seront libérées.');">
+                            Annuler la réservation
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div th:if="${#lists.isEmpty(reservations)}" class="col-12 text-center text-muted py-5">
+            Vous n'avez aucune réservation pour le moment.
+            <br/>
+            <a th:href="@{/visites}" class="btn btn-success rounded-pill px-4 mt-3">Découvrir les visites disponibles</a>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+</body>
+</html>

@@ -1,0 +1,11 @@
+{
+  "buildCommand": "cd kasatouristique-frontend && npm run build",
+  "outputDirectory": "kasatouristique-frontend/dist/kasatouristique-frontend/browser",
+  "cleanUrls": true,
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}

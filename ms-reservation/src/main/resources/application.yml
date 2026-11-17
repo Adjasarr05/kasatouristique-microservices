@@ -1,0 +1,53 @@
+server:
+  port: 8084
+
+spring:
+  application:
+    name: ms-reservation
+  datasource:
+    url: 'jdbc:h2:mem:reservationdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE'
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: ''
+  h2:
+    console:
+      enabled: true
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+  cloud:
+    config:
+      enabled: false
+    discovery:
+      enabled: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+
+microservices:
+  circuit:
+    url: http://localhost:8082
+  evenement:
+    url: http://localhost:8083
+  utilisateur:
+    url: http://localhost:8085
+  paiement:
+    url: http://localhost:8086
+  notification:
+    url: http://localhost:8087
+
+# ============================================================================
+# Option MySQL (XAMPP) : décommenter ci-dessous et commenter H2 au-dessus
+# ============================================================================
+# spring:
+#   datasource:
+#     url: jdbc:mysql://localhost:3306/ms_reservation_db?useSSL=false&serverTimezone=UTC&createDatabaseIfNotExist=true
+#     username: root
+#     password: ''
+#     driver-class-name: com.mysql.cj.jdbc.Driver
+#   jpa:
+#     database-platform: org.hibernate.dialect.MySQLDialect

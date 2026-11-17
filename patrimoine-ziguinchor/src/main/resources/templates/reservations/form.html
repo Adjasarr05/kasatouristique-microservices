@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: pageHead('Confirmer votre réservation')}"></head>
+<body>
+
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<section class="page-banner">
+    <div class="container">
+        <nav aria-label="breadcrumb" class="mb-2">
+            <ol class="breadcrumb small mb-0">
+                <li class="breadcrumb-item"><a th:href="@{/}" class="text-white-50 text-decoration-none">Accueil</a></li>
+                <li class="breadcrumb-item"><a th:href="@{/visites}" class="text-white-50 text-decoration-none">Visites guidées</a></li>
+                <li class="breadcrumb-item active text-white">Réservation</li>
+            </ol>
+        </nav>
+        <h1 class="h2 fw-bold mb-1">Finaliser votre réservation</h1>
+        <p class="mb-0 text-white-50">Renseignez vos coordonnées et le nombre de places souhaité pour obtenir votre billet QR Code.</p>
+    </div>
+</section>
+
+<main class="container mb-5">
+    <div class="alert alert-danger rounded-4" th:if="${messageErreur}" th:text="${messageErreur}"></div>
+
+    <div class="row g-4">
+        <!-- Récapitulatif de la visite -->
+        <div class="col-lg-5">
+            <div class="feature-card h-100">
+                <img th:src="${visite.site != null and visite.site.imageUrl != null and !visite.site.imageUrl.isBlank()} ? ${visite.site.imageUrl} : @{/images/fallback-casamance.svg}"
+                     onerror="this.onerror=null;this.src='/images/fallback-casamance.svg';"
+                     class="w-100" style="height: 220px; object-fit: cover;"
+                     th:alt="${visite.site != null ? visite.site.nom : 'Site touristique'}"/>
+
+                <div class="p-4">
+                    <span class="badge bg-success-subtle text-success rounded-pill px-3 py-2 mb-2"
+                          th:if="${visite.site != null and visite.site.categorie != null}"
+                          th:text="${visite.site.categorie.nom}">Catégorie</span>
+
+                    <h4 class="fw-bold mb-1" th:text="${visite.site != null ? visite.site.nom : 'Visite guidée'}">Site</h4>
+                    <p class="small text-muted mb-3" th:if="${visite.site != null and visite.site.quartier != null}">
+                        📍 <span th:text="${visite.site.quartier}">Quartier</span>
+                    </p>
+
+                    <ul class="list-unstyled small mb-0 d-grid gap-2">
+                        <li>📅 <strong>Date et heure :</strong>
+                            <span th:text="${visite.dateHeureDebut != null ? #temporals.format(visite.dateHeureDebut, 'dd/MM/yyyy à HH:mm') : 'À confirmer'}">Date</span>
+                        </li>
+                        <li>⏱️ <strong>Durée :</strong> <span th:text="${visite.dureeMinutes}">90</span> minutes</li>
+                        <li th:if="${visite.guide != null and !visite.guide.isBlank()}">
+                            👤 <strong>Guide :</strong> <span th:text="${visite.guide}">Guide</span>
+                        </li>
+                        <li th:if="${visite.circuit != null}">
+                            🧭 <strong>Circuit :</strong> <span th:text="${visite.circuit.nom}">Circuit</span>
+                        </li>
+                        <li>🎟️ <strong>Places restantes :</strong>
+                            <span class="badge bg-success rounded-pill" th:text="${visite.placesDisponibles} + ' place(s)'">10</span>
+                        </li>
+                        <li>💳 <strong>Tarif unitaire :</strong>
+                            <strong class="text-success"
+                                    th:text="${#numbers.formatDecimal(prixUnitaire, 0, 'WHITESPACE', 0, 'POINT')} + ' FCFA / place'">5 000 FCFA</strong>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Formulaire de réservation -->
+        <div class="col-lg-7">
+            <div class="info-panel">
+                <h4 class="fw-bold mb-3">Informations du réservant</h4>
+
+                <form th:action="@{/reservations/reserver/{visiteId}(visiteId=${visite.id})}" method="post">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="nomReservant" class="form-label fw-semibold">Nom complet *</label>
+                            <input type="text" id="nomReservant" name="nomReservant" class="form-control"
+                                   th:value="${reservation.nomReservant}"
+                                   placeholder="Ex : Moussa Diatta" required/>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="telephone" class="form-label fw-semibold">Téléphone *</label>
+                            <input type="tel" id="telephone" name="telephone" class="form-control"
+                                   placeholder="Ex : +221 77 123 45 67" required/>
+                        </div>
+
+                        <div class="col-12">
+                            <label for="emailReservant" class="form-label fw-semibold">Adresse email *</label>
+                            <input type="email" id="emailReservant" name="emailReservant" class="form-control"
+                                   th:value="${reservation.emailReservant}"
+                                   placeholder="exemple@domaine.sn" required/>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="nombrePlaces" class="form-label fw-semibold">Nombre de places *</label>
+                            <input type="number" id="nombrePlaces" name="nombrePlaces" class="form-control"
+                                   min="1" th:max="${visite.placesDisponibles}" value="1"
+                                   th:attr="data-prix=${prixUnitaire}" required/>
+                            <div class="form-text" th:text="'Maximum disponible : ' + ${visite.placesDisponibles} + ' place(s)'"></div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="modePaiement" class="form-label fw-semibold">Mode de paiement *</label>
+                            <select id="modePaiement" name="modePaiement" class="form-select" required>
+                                <option value="Wave">Wave</option>
+                                <option value="Orange Money">Orange Money</option>
+                                <option value="Espèces sur place">Espèces sur place</option>
+                                <option value="Carte bancaire">Carte bancaire</option>
+                            </select>
+                        </div>
+
+                        <div class="col-12">
+                            <label for="commentaire" class="form-label fw-semibold">Commentaire ou besoin particulier (optionnel)</label>
+                            <textarea id="commentaire" name="commentaire" class="form-control" rows="2"
+                                      placeholder="Ex : Langue souhaitée, enfant dans le groupe, horaire d'arrivée..."></textarea>
+                        </div>
+                    </div>
+
+                    <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3 p-3 rounded-4 bg-light border mt-4">
+                        <div>
+                            <span class="small text-muted d-block">Montant total estimé</span>
+                            <strong class="fs-4 text-success" id="totalMontant"
+                                    th:text="${#numbers.formatDecimal(prixUnitaire, 0, 'WHITESPACE', 0, 'POINT')} + ' FCFA'">5 000 FCFA</strong>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <a th:href="@{/visites}" class="btn btn-outline-secondary rounded-pill px-4">Retour</a>
+                            <button type="submit" class="btn btn-success rounded-pill px-4 fw-semibold">Confirmer la réservation</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</main>
+
+<script>
+    (function () {
+        const inputPlaces = document.getElementById('nombrePlaces');
+        const totalEl = document.getElementById('totalMontant');
+        if (!inputPlaces || !totalEl) return;
+
+        const prixUnitaire = parseFloat(inputPlaces.getAttribute('data-prix')) || 0;
+        const maxPlaces = parseInt(inputPlaces.getAttribute('max'), 10) || 1;
+
+        function mettreAJourTotal() {
+            let nb = parseInt(inputPlaces.value, 10) || 1;
+            if (nb < 1) nb = 1;
+            if (nb > maxPlaces) nb = maxPlaces;
+            const total = Math.round(nb * prixUnitaire);
+            totalEl.textContent = total.toLocaleString('fr-FR') + ' FCFA';
+        }
+
+        inputPlaces.addEventListener('input', mettreAJourTotal);
+        inputPlaces.addEventListener('change', mettreAJourTotal);
+        mettreAJourTotal();
+    })();
+</script>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+</body>
+</html>

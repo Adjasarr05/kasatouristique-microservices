@@ -1,0 +1,34 @@
+{
+  "/api/patrimoines": {
+    "target": "http://localhost:8081",
+    "secure": false
+  },
+  "/api/categories": {
+    "target": "http://localhost:8081",
+    "secure": false
+  },
+  "/api/circuits": {
+    "target": "http://localhost:8082",
+    "secure": false
+  },
+  "/api/evenements": {
+    "target": "http://localhost:8083",
+    "secure": false
+  },
+  "/api/reservations": {
+    "target": "http://localhost:8084",
+    "secure": false
+  },
+  "/api/utilisateurs": {
+    "target": "http://localhost:8085",
+    "secure": false
+  },
+  "/api/paiements": {
+    "target": "http://localhost:8086",
+    "secure": false
+  },
+  "/api/notifications": {
+    "target": "http://localhost:8087",
+    "secure": false
+  }
+}

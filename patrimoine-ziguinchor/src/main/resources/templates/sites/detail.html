@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: pageHead(${site.nom})}"></head>
+<body>
+
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<main class="container my-5">
+    <nav aria-label="breadcrumb" class="mb-3">
+        <ol class="breadcrumb small">
+            <li class="breadcrumb-item"><a th:href="@{/}" class="text-success text-decoration-none">Accueil</a></li>
+            <li class="breadcrumb-item"><a th:href="@{/sites}" class="text-success text-decoration-none">Catalogue</a></li>
+            <li class="breadcrumb-item active" th:text="${site.nom}">Détail</li>
+        </ol>
+    </nav>
+
+    <div class="row g-4">
+        <div class="col-lg-7">
+            <img th:src="${site.imageUrl != null and !site.imageUrl.isBlank()} ? ${site.imageUrl} : @{/images/fallback-casamance.svg}"
+                 onerror="this.onerror=null;this.src='/images/fallback-casamance.svg';"
+                 class="detail-cover mb-4" th:alt="${site.nom}"/>
+
+            <div class="info-panel">
+                <div class="d-flex flex-wrap gap-2 align-items-center mb-3">
+                    <span class="badge bg-success rounded-pill px-3 py-2" th:if="${site.categorie}" th:text="${site.categorie.nom}">Catégorie</span>
+                    <span class="badge bg-light text-dark border rounded-pill px-3 py-2" th:if="${site.quartier}">
+                        📍 <span th:text="${site.quartier}">Quartier</span>
+                    </span>
+                    <span class="badge bg-warning-subtle text-dark border rounded-pill px-3 py-2" th:if="${site.noteMoyenne > 0}">
+                        ★ <span th:text="${#numbers.formatDecimal(site.noteMoyenne, 1, 1)} + ' / 5'">5.0 / 5</span>
+                    </span>
+                </div>
+
+                <h1 class="h2 fw-bold mb-3" th:text="${site.nom}">Nom du site</h1>
+                <p class="lead fs-6 text-secondary mb-4" th:text="${site.description}">Description complète du site.</p>
+
+                <div class="alert alert-success small rounded-3" th:if="${param.horaires}">Horaires d'ouverture mis à jour avec succès.</div>
+                <div class="alert alert-success small rounded-3" th:if="${messageSucces}" th:text="${messageSucces}">Action effectuée.</div>
+
+                <div class="row g-3 p-3 rounded-3 bg-light mb-4 small">
+                    <div class="col-sm-6" th:if="${site.adresse}">
+                        <strong class="d-block text-muted">Adresse / Accès</strong>
+                        <span th:text="${site.adresse}">Adresse</span>
+                    </div>
+                    <div class="col-sm-6">
+                        <strong class="d-block text-muted">Horaires d'ouverture</strong>
+                        <span th:text="${site.horairesOuverture != null and !site.horairesOuverture.isBlank()} ? ${site.horairesOuverture} : 'Tous les jours : 08h00 - 18h00'">Horaires</span>
+                    </div>
+                    <div class="col-sm-6" th:if="${site.dateAjout}">
+                        <strong class="d-block text-muted">Ajouté au catalogue</strong>
+                        <span th:text="${site.dateAjout}">Date</span>
+                    </div>
+                    <div class="col-12" th:if="${site.latitude != null and site.longitude != null}">
+                        <strong class="d-block text-muted">Coordonnées GPS</strong>
+                        <span th:text="${site.latitude} + ', ' + ${site.longitude}">12.56, -16.27</span>
+                        <a th:href="'https://www.google.com/maps?q=' + ${site.latitude} + ',' + ${site.longitude}"
+                           target="_blank" class="ms-2 text-success fw-semibold text-decoration-none">
+                            Ouvrir dans Google Maps &rarr;
+                        </a>
+                    </div>
+                </div>
+
+                <form sec:authorize="hasAnyRole('CONSERVATEUR','ADMINISTRATEUR_COMMUNAL','SUPER_ADMIN')"
+                      th:action="@{/sites/{id}/horaires(id=${site.id})}" method="post" class="row g-2 align-items-center mb-4">
+                    <div class="col-sm-8">
+                        <input type="text" name="horairesOuverture" th:value="${site.horairesOuverture}"
+                               class="form-control form-control-sm" placeholder="Modifier les horaires d'ouverture..." required/>
+                    </div>
+                    <div class="col-sm-4">
+                        <button type="submit" class="btn btn-sm btn-outline-success rounded-pill w-100">Mettre à jour horaires</button>
+                    </div>
+                </form>
+
+                <div class="d-flex flex-wrap gap-2">
+                    <a th:href="@{/visites}" class="btn btn-success rounded-pill px-4">Voir les visites guidées</a>
+                    <a th:href="@{/sites}" class="btn btn-outline-secondary rounded-pill px-3">&larr; Retour au catalogue</a>
+                    <a sec:authorize="hasAnyRole('CONSERVATEUR','ADMINISTRATEUR_COMMUNAL','SUPER_ADMIN')" th:href="@{/sites/modifier/{id}(id=${site.id})}" class="btn btn-outline-primary rounded-pill px-3">Modifier</a>
+                    <a sec:authorize="hasAnyRole('CONSERVATEUR','ADMINISTRATEUR_COMMUNAL','SUPER_ADMIN')" th:href="@{/sites/supprimer/{id}(id=${site.id})}" class="btn btn-outline-danger rounded-pill px-3"
+                       onclick="return confirm('Confirmer la suppression ?');">Supprimer</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-5">
+            <div class="info-panel">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h4 class="fw-bold mb-0">Avis des visiteurs</h4>
+                    <span class="badge bg-warning text-dark rounded-pill px-3 py-2"
+                          th:text="${#numbers.formatDecimal(site.noteMoyenne, 1, 1)} + ' / 5'">0 / 5</span>
+                </div>
+
+                <div class="review-card p-3 mb-3" th:each="a : ${site.avis}" th:if="${!a.masque}">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <div>
+                            <strong th:text="${a.auteur}">Auteur</strong>
+                            <span th:if="${a.signale}" class="badge bg-danger ms-1">Signalé</span>
+                        </div>
+                        <span class="text-warning" th:text="${#strings.repeat('★', a.note)}">★★★</span>
+                    </div>
+                    <p class="mb-1 small text-secondary" th:text="${a.commentaire}">Commentaire</p>
+                    <small class="text-muted d-block mb-2" th:text="${a.dateAvis}">Date</small>
+
+                    <div th:if="${a.reponseGuide != null and !a.reponseGuide.isBlank()}" class="p-2 rounded-3 bg-light border-start border-3 border-success small mb-2">
+                        <strong class="text-success" th:text="${a.auteurReponse != null ? a.auteurReponse : 'Guide touristique'}">Guide</strong> :
+                        <span th:text="${a.reponseGuide}">Réponse</span>
+                    </div>
+
+                    <div sec:authorize="hasAnyRole('GUIDE','CONSERVATEUR','ADMINISTRATEUR_COMMUNAL','SUPER_ADMIN')" class="mt-2">
+                        <form th:action="@{/avis/{id}/repondre(id=${a.id})}" method="post" class="d-flex gap-1 mb-1">
+                            <input type="text" name="reponseGuide" class="form-control form-control-sm" placeholder="Répondre à cet avis..." required/>
+                            <button type="submit" class="btn btn-sm btn-outline-success">Répondre</button>
+                        </form>
+                    </div>
+                    <div sec:authorize="isAuthenticated()" th:if="${!a.signale}" class="text-end">
+                        <form th:action="@{/avis/{id}/signaler(id=${a.id})}" method="post" class="d-inline">
+                            <input type="hidden" name="motif" value="Contenu abusif ou inapproprié"/>
+                            <button type="submit" class="btn btn-link btn-sm text-danger p-0 text-decoration-none"
+                                    onclick="return confirm('Signaler cet avis comme abusif ?');">🚩 Signaler cet avis</button>
+                        </form>
+                    </div>
+                </div>
+
+                <p th:if="${#lists.isEmpty(site.avis)}" class="text-muted small">
+                    Aucun avis pour le moment. Soyez le premier à partager votre expérience !
+                </p>
+
+                <hr class="my-4"/>
+                <h5 class="fw-bold mb-3">Laisser un avis</h5>
+                <div sec:authorize="!isAuthenticated()" class="alert alert-success small">
+                    <a th:href="@{/login}" class="fw-semibold text-success">Connectez-vous</a> avec un compte visiteur pour publier un avis.
+                </div>
+                <form sec:authorize="hasAnyRole('VISITEUR','SUPER_ADMIN')" id="avis" th:action="@{/sites/{id}/avis(id=${site.id})}" th:object="${nouvelAvis}" method="post">
+                    <div class="mb-2">
+                        <input type="text" th:field="*{auteur}" class="form-control" placeholder="Votre nom" required/>
+                    </div>
+                    <div class="mb-2">
+                        <select th:field="*{note}" class="form-select">
+                            <option value="5">5 - Excellent</option>
+                            <option value="4">4 - Très bien</option>
+                            <option value="3">3 - Correct</option>
+                            <option value="2">2 - Moyen</option>
+                            <option value="1">1 - Décevant</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <textarea th:field="*{commentaire}" class="form-control" rows="3" placeholder="Votre commentaire" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-success rounded-pill px-4">Envoyer mon avis</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+</body>
+</html>

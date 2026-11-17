@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: pageHead('Catalogue')}"></head>
+<body>
+
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<section class="page-banner">
+    <div class="container d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+        <div>
+            <h1 class="h2 fw-bold mb-1">Catalogue de la Région de Ziguinchor</h1>
+            <p class="mb-0 text-white-50">
+                Découvrez les <strong class="text-white" th:text="${#lists.size(sites)}">15</strong> sites répertoriés entre Ziguinchor, Oussouye et Bignona.
+            </p>
+        </div>
+        <a sec:authorize="hasAnyRole('CONSERVATEUR','ADMINISTRATEUR_COMMUNAL','SUPER_ADMIN')" th:href="@{/sites/nouveau}" class="btn btn-gold rounded-pill px-4">+ Ajouter un site</a>
+    </div>
+</section>
+
+<main class="container mb-5">
+    <div class="row g-3 align-items-center mb-4">
+        <div class="col-lg-7">
+            <div class="filter-bar inline-filter mb-0">
+                <span class="filter-label">Catégorie :</span>
+                <a th:href="@{/sites}"
+                   class="filter-pill"
+                   th:classappend="${categorieSelectionnee == null and (recherche == null or recherche.isBlank())} ? ' active' : ''">Toutes</a>
+                <a th:each="cat : ${categories}"
+                   th:href="@{/sites(categorie=${cat.id})}"
+                   th:text="${cat.nom}"
+                   class="filter-pill"
+                   th:classappend="${categorieSelectionnee != null and categorieSelectionnee == cat.id} ? ' active' : ''">Catégorie</a>
+            </div>
+        </div>
+        <div class="col-lg-5">
+            <form th:action="@{/sites}" method="get" class="d-flex gap-2">
+                <input type="text" name="recherche" th:value="${recherche}" class="form-control rounded-pill px-3"
+                       placeholder="Rechercher par nom..."/>
+                <button type="submit" class="btn btn-success rounded-pill px-4">Filtrer</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm rounded-4 p-3 mb-4 bg-light">
+        <form th:action="@{/sites}" method="get" id="gpsForm" class="row g-2 align-items-end">
+            <div class="col-md-3">
+                <label class="form-label small fw-semibold mb-1">Latitude</label>
+                <input type="number" step="any" name="lat" id="gpsLat" th:value="${lat}" class="form-control form-control-sm" placeholder="Ex : 12.5819"/>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label small fw-semibold mb-1">Longitude</label>
+                <input type="number" step="any" name="lon" id="gpsLon" th:value="${lon}" class="form-control form-control-sm" placeholder="Ex : -16.2719"/>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label small fw-semibold mb-1">Rayon (km)</label>
+                <input type="number" name="rayon" th:value="${rayon != null ? rayon : 30}" min="1" max="500" class="form-control form-control-sm"/>
+            </div>
+            <div class="col-md-4 d-flex flex-wrap gap-2">
+                <button type="button" class="btn btn-sm btn-outline-success rounded-pill px-3" onclick="detecterPositionGPS()">
+                    📍 Ma position GPS
+                </button>
+                <button type="submit" class="btn btn-sm btn-success rounded-pill px-3">Rechercher autour</button>
+                <a th:if="${modeProximite}" th:href="@{/sites}" class="btn btn-sm btn-outline-secondary rounded-pill px-3">Réinitialiser</a>
+            </div>
+        </form>
+        <div th:if="${modeProximite}" class="small text-success fw-semibold mt-2">
+            Sites classés par proximité autour de (<span th:text="${lat}"></span>, <span th:text="${lon}"></span>) dans un rayon de <span th:text="${rayon}"></span> km.
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-md-6 col-lg-4" th:each="site : ${sites}">
+            <div class="site-card">
+                <div class="img-wrap">
+                    <span class="cat-badge" th:if="${site.categorie}" th:text="${site.categorie.nom}">Catégorie</span>
+                    <span class="rating-badge" th:if="${site.noteMoyenne > 0}">
+                        <span class="star">&#9733;</span>
+                        <span th:text="${#numbers.formatDecimal(site.noteMoyenne, 1, 1)}">4.8</span>
+                    </span>
+                    <img th:src="${site.imageUrl != null and !site.imageUrl.isBlank()} ? ${site.imageUrl} : @{/images/fallback-casamance.svg}"
+                         onerror="this.onerror=null;this.src='/images/fallback-casamance.svg';"
+                         th:alt="${site.nom}"/>
+                    <div class="img-gradient"></div>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title" th:text="${site.nom}">Nom du site</h5>
+                    <p class="quartier">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
+                            <path d="M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10Zm0-7a3 3 0 1 1 0-6 3 3 0 0 1 0 6Z"/>
+                        </svg>
+                        <span th:text="${site.quartier != null ? site.quartier : 'Région de Ziguinchor'}">Quartier</span>
+                        <span th:if="${site.distanceKm != null}" class="badge bg-info-subtle text-dark ms-1 rounded-pill"
+                              th:text="'à ' + ${site.distanceKm} + ' km'">à 1.2 km</span>
+                    </p>
+                    <p class="card-text"
+                       th:text="${site.description != null and #strings.length(site.description) > 115} ? ${#strings.substring(site.description, 0, 112)} + '...' : ${site.description}">
+                        Description
+                    </p>
+                </div>
+                <div class="card-footer">
+                    <a th:href="@{/sites/{id}(id=${site.id})}" class="btn-detail">Voir la fiche</a>
+                    <div class="d-flex gap-1" sec:authorize="hasAnyRole('CONSERVATEUR','ADMINISTRATEUR_COMMUNAL','SUPER_ADMIN')">
+                        <a th:href="@{/sites/modifier/{id}(id=${site.id})}" class="btn btn-sm btn-outline-primary rounded-pill">Modifier</a>
+                        <a th:href="@{/sites/supprimer/{id}(id=${site.id})}" class="btn btn-sm btn-outline-danger rounded-pill"
+                           onclick="return confirm('Confirmer la suppression de ce site ?');">Supprimer</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div th:if="${#lists.isEmpty(sites)}" class="col-12 text-center text-muted py-5">
+            Aucun site touristique enregistré pour cette sélection.
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+<script>
+function detecterPositionGPS() {
+    if (!navigator.geolocation) {
+        alert("La géolocalisation n'est pas supportée par votre navigateur.");
+        return;
+    }
+    navigator.geolocation.getCurrentPosition(function(pos) {
+        document.getElementById('gpsLat').value = pos.coords.latitude.toFixed(6);
+        document.getElementById('gpsLon').value = pos.coords.longitude.toFixed(6);
+        document.getElementById('gpsForm').submit();
+    }, function() {
+        document.getElementById('gpsLat').value = '12.5819';
+        document.getElementById('gpsLon').value = '-16.2719';
+        alert("Position GPS indisponible : coordonnées du centre de Ziguinchor pré-remplies.");
+    });
+}
+</script>
+</body>
+</html>

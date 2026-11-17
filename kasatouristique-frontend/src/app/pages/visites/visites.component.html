@@ -1,0 +1,90 @@
+<section class="page-banner">
+  <div class="container d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+    <div>
+      <h1 class="h2 fw-bold mb-1">Visites guidées à venir</h1>
+      <p class="mb-0 text-white-50">Partez accompagné par des guides locaux expérimentés sur les plus beaux sites de Ziguinchor.</p>
+    </div>
+  </div>
+</section>
+
+<main class="container mb-5">
+  <div class="alert alert-success rounded-4" *ngIf="messageSucces">
+    {{ messageSucces }}
+  </div>
+
+  <div class="row g-4">
+    <div class="col-md-6 col-lg-4" *ngFor="let visite of visites">
+      <div class="feature-card h-100 d-flex flex-column">
+        <div class="p-4 flex-grow-1">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <span class="badge bg-success-subtle text-success rounded-pill px-3 py-2">
+              {{ visite.dateHeure }}
+            </span>
+            <span *ngIf="!visite.complete" class="badge bg-success rounded-pill px-3 py-2">
+              {{ visite.placesDisponibles }} place(s)
+            </span>
+            <span *ngIf="visite.complete" class="badge bg-danger rounded-pill px-3 py-2">Complet</span>
+          </div>
+
+          <h5 class="fw-bold mb-2">{{ visite.siteNom }}</h5>
+
+          <p class="mb-1 small">
+            <span>👤 Guide : <strong>{{ visite.guide }}</strong></span>
+          </p>
+          <p class="mb-1 small text-muted">⏱️ Durée estimée : <strong>{{ visite.dureeMinutes }}</strong> min</p>
+          <p class="mb-0 small" *ngIf="visite.circuitNom">
+            🧭 Circuit : <span class="badge bg-warning-subtle text-dark">{{ visite.circuitNom }}</span>
+          </p>
+        </div>
+
+        <div class="px-4 py-3 bg-light border-top d-flex justify-content-between align-items-center">
+          <a routerLink="/catalogue" class="btn btn-sm btn-outline-success rounded-pill px-3">Voir le site</a>
+
+          <div class="d-flex gap-2">
+            <button *ngIf="!visite.complete"
+                    (click)="preparerReservation(visite)"
+                    class="btn btn-success btn-sm rounded-pill px-3">Réserver</button>
+            <button *ngIf="visite.complete"
+                    type="button"
+                    class="btn btn-secondary btn-sm rounded-pill px-3" disabled>Complet</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Réservation Bleu Nuit & Or -->
+  <div class="modal fade show d-block" *ngIf="visiteChoisie" style="background: rgba(0,0,0,0.7); backdrop-filter: blur(8px);">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content text-white rounded-4 border-0 shadow" style="background: #0d1a30; border: 1px solid rgba(229, 160, 36, 0.4) !important;">
+        <div class="modal-header border-0 pb-0">
+          <h5 class="modal-title fw-bold text-white">Réserver : {{ visiteChoisie.siteNom }}</h5>
+          <button type="button" class="btn-close btn-close-white" (click)="visiteChoisie = null"></button>
+        </div>
+        <div class="modal-body">
+          <p class="small text-muted mb-3">📅 {{ visiteChoisie.dateHeure }} | 🧭 Guide : {{ visiteChoisie.guide }}</p>
+          <div class="mb-3">
+            <label class="form-label small fw-semibold text-light">Votre nom complet</label>
+            <input type="text" class="form-control rounded-pill" [(ngModel)]="nomClient" placeholder="Ex : Aminata Sonko">
+          </div>
+          <div class="mb-3">
+            <label class="form-label small fw-semibold text-light">Votre adresse email</label>
+            <input type="email" class="form-control rounded-pill" [(ngModel)]="emailClient" placeholder="exemple@ziguinchor.sn">
+          </div>
+          <div class="mb-3">
+            <label class="form-label small fw-semibold text-light">Nombre de places</label>
+            <input type="number" min="1" [max]="visiteChoisie.placesDisponibles" class="form-control rounded-pill" [(ngModel)]="nombrePlaces">
+          </div>
+          <div class="p-3 rounded-3 text-end" style="background: rgba(229, 160, 36, 0.1); border: 1px solid rgba(229, 160, 36, 0.2);">
+            <span class="text-light small">Montant total à régler : </span>
+            <strong class="text-warning fs-5 ms-2">{{ visiteChoisie.prix * nombrePlaces | number:'1.0-0' }} FCFA</strong>
+          </div>
+        </div>
+        <div class="modal-footer border-0 pt-0">
+          <button type="button" class="btn btn-secondary rounded-pill px-3" (click)="visiteChoisie = null">Annuler</button>
+          <button type="button" class="btn btn-kasa-gold rounded-pill px-4" (click)="validerReservation()">Confirmer ma réservation</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>

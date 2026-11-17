@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.uasz</groupId>
+    <artifactId>patrimoine-ziguinchor-microservices</artifactId>
+    <version>1.0.0</version>
+    <packaging>pom</packaging>
+
+    <name>patrimoine-ziguinchor-microservices</name>
+    <description>Architecture microservices du projet Patrimoine Touristique de Ziguinchor (TP1 UASZ)</description>
+
+    <modules>
+        <module>ms-patrimoine</module>
+        <module>ms-circuit</module>
+        <module>ms-evenement</module>
+        <module>ms-reservation</module>
+        <module>ms-utilisateur</module>
+        <module>ms-paiement</module>
+        <module>ms-notification</module>
+        <module>patrimoine-ziguinchor</module>
+    </modules>
+
+</project>

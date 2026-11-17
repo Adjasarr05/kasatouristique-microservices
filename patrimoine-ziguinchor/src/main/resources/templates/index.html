@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: pageHead('Accueil')}"></head>
+<body>
+
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<header class="kasa-hero text-white">
+    <div class="kasa-hero-stage">
+        <div class="kasa-hero-media">
+            <img th:src="@{/images/hero-kasa.jpg}"
+                 onerror="this.onerror=null;this.src='/images/sites/cap-skirring.jpg';"
+                 alt="Plage tropicale du Cap Skirring en Casamance"/>
+            <div class="kasa-media-overlay"></div>
+            <div class="kasa-loc-stack">
+                <a th:href="@{/sites(recherche='Cap Skirring')}" class="kasa-loc-pill">Cap Skirring</a>
+                <a th:href="@{/sites(recherche='Ziguinchor')}" class="kasa-loc-pill">Ziguinchor</a>
+            </div>
+        </div>
+
+        <div class="container kasa-hero-inner">
+            <div class="kasa-hero-card">
+                <h1>BIENVENUE SUR<br/>KASATOURISTIQUE</h1>
+                <p class="kasa-hero-lead">
+                    Découvrez le portail touristique de la Casamance et de Ziguinchor, Sénégal.
+                </p>
+                <a th:href="@{/visites}" class="btn btn-kasa-gold">RÉSERVER UNE VISITE</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="container kasa-search-wrap">
+        <form th:action="@{/}" method="get" class="kasa-search-bar">
+            <div class="kasa-search-field">
+                <input type="text" name="recherche" th:value="${recherche}"
+                       placeholder="Destination (Cap Skirring, Carabane...)" aria-label="Destination"/>
+            </div>
+            <div class="kasa-search-field kasa-search-date">
+                <input type="date" name="dateVisite" th:value="${param.dateVisite}" aria-label="Date"/>
+            </div>
+            <div class="kasa-search-field kasa-search-select">
+                <select name="categorie" aria-label="Type d'activité">
+                    <option value="">Type d'activité</option>
+                    <option th:each="cat : ${categories}"
+                            th:value="${cat.id}"
+                            th:text="${cat.nom}"
+                            th:selected="${categorieSelectionnee != null and categorieSelectionnee == cat.id}">Catégorie</option>
+                </select>
+            </div>
+            <button type="submit" class="kasa-search-btn" aria-label="Rechercher">
+                <svg xmlns="http://www.w3.org/2000/svg" width="19" height="19" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"/>
+                </svg>
+            </button>
+        </form>
+    </div>
+</header>
+
+<main class="container mb-5">
+
+    <div class="filter-bar">
+        <span class="filter-label">Explorer par thème :</span>
+        <a th:href="@{/}"
+           class="filter-pill"
+           th:classappend="${categorieSelectionnee == null and (recherche == null or recherche.isBlank())} ? ' active' : ''">Tous les sites</a>
+        <a th:each="cat : ${categories}"
+           th:href="@{/(categorie=${cat.id})}"
+           th:text="${cat.nom}"
+           class="filter-pill"
+           th:classappend="${categorieSelectionnee != null and categorieSelectionnee == cat.id} ? ' active' : ''">Catégorie</a>
+    </div>
+
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end mb-4 gap-2">
+        <div>
+            <h2 class="fw-bold mb-1">Sites emblématiques de la Région de Ziguinchor</h2>
+            <p class="text-muted mb-0" th:if="${recherche != null and !recherche.isBlank()}">
+                Résultats pour « <strong th:text="${recherche}"></strong> »
+                (<a th:href="@{/}" class="text-warning fw-semibold">réinitialiser</a>)
+            </p>
+            <p class="text-muted mb-0" th:unless="${recherche != null and !recherche.isBlank()}">
+                Sélection des incontournables entre fleuve, îles, forêts sacrées et cité historique.
+            </p>
+        </div>
+        <a th:href="@{/sites}" class="btn btn-outline-gold rounded-pill px-4 fw-semibold">Voir tout le catalogue &rarr;</a>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-md-6 col-lg-4" th:each="site : ${sites}">
+            <div class="site-card">
+                <div class="img-wrap">
+                    <span class="cat-badge" th:if="${site.categorie}" th:text="${site.categorie.nom}">Catégorie</span>
+                    <span class="rating-badge" th:if="${site.noteMoyenne > 0}">
+                        <span class="star">&#9733;</span>
+                        <span th:text="${#numbers.formatDecimal(site.noteMoyenne, 1, 1)}">4.8</span>
+                    </span>
+                    <img th:src="${site.imageUrl != null and !site.imageUrl.isBlank()} ? ${site.imageUrl} : @{/images/fallback-casamance.svg}"
+                         onerror="this.onerror=null;this.src='/images/fallback-casamance.svg';"
+                         th:alt="${site.nom}"/>
+                    <div class="img-gradient"></div>
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title" th:text="${site.nom}">Nom du site</h5>
+                    <p class="quartier">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
+                            <path d="M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10Zm0-7a3 3 0 1 1 0-6 3 3 0 0 1 0 6Z"/>
+                        </svg>
+                        <span th:text="${site.quartier != null ? site.quartier : 'Région de Ziguinchor'}">Quartier</span>
+                    </p>
+                    <p class="card-text"
+                       th:text="${site.description != null and #strings.length(site.description) > 115} ? ${#strings.substring(site.description, 0, 112)} + '...' : ${site.description}">
+                        Description courte...
+                    </p>
+                </div>
+                <div class="card-footer">
+                    <span class="small text-muted"
+                          th:text="${site.avis != null ? #lists.size(site.avis) : 0} + ' avis'">0 avis</span>
+                    <a th:href="@{/sites/{id}(id=${site.id})}" class="btn-detail">
+                        Découvrir
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 16 16">
+                            <path fill-rule="evenodd" d="M4.646 1.646a.5.5 0 0 1 .708 0l6 6a.5.5 0 0 1 0 .708l-6 6a.5.5 0 0 1-.708-.708L10.293 8 4.646 2.354a.5.5 0 0 1 0-.708Z"/>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div th:if="${#lists.isEmpty(sites)}" class="col-12 text-center text-muted py-5">
+            Aucun site touristique trouvé pour ce critère.
+        </div>
+    </div>
+
+    <section class="mt-5 pt-4">
+        <div class="text-center mb-4">
+            <h2 class="fw-bold">Trois départements, mille visages de la Casamance</h2>
+            <p class="text-muted">De la capitale régionale jusqu'aux îles de l'embouchure et aux plages atlantiques</p>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="territory-card">
+                    <span class="badge bg-success-subtle text-success mb-2">Département de Ziguinchor</span>
+                    <h5>Cité coloniale, fleuve &amp; traditions</h5>
+                    <p class="small text-muted mb-0">
+                        Cathédrale Saint-Antoine, Mémorial Le Joola, Marché Saint-Maur, Alliance Franco-Sénégalaise, Djibélor et cases à impluvium d'Enampore.
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="territory-card gold-accent">
+                    <span class="badge bg-warning-subtle text-dark mb-2">Département d'Oussouye</span>
+                    <h5>Îles historiques, royaume &amp; plages</h5>
+                    <p class="small text-muted mb-0">
+                        Île de Carabane, plages du Cap Skirring et Kabrousse, cases à étage de Mlomp, Pointe Saint-Georges, bois sacrés d'Oussouye et île d'Égueye.
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="territory-card">
+                    <span class="badge bg-success-subtle text-success mb-2">Département de Bignona</span>
+                    <h5>Océan, pêche &amp; îles Karone</h5>
+                    <p class="small text-muted mb-0">
+                        Port de pêche coloré de Kafountine, réserve ornithologique de Kalissaye, îles des Karone et balades en pirogue dans les bolongs du nord.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="cta-casamance mt-5">
+        <div class="row align-items-center g-3">
+            <div class="col-lg-8">
+                <h3 class="fw-bold mb-2">Prêt à explorer la Casamance avec un guide local ?</h3>
+                <p class="mb-0 text-white-50">
+                    Parcourez nos circuits thématiques et réservez votre prochaine visite guidée en ligne en quelques clics.
+                </p>
+            </div>
+            <div class="col-lg-4 text-lg-end d-flex flex-wrap gap-2 justify-content-lg-end">
+                <a th:href="@{/circuits}" class="btn btn-gold rounded-pill px-4">Voir les circuits</a>
+                <a th:href="@{/visites}" class="btn btn-outline-light rounded-pill px-4">Visites guidées</a>
+            </div>
+        </div>
+    </section>
+
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+</body>
+</html>

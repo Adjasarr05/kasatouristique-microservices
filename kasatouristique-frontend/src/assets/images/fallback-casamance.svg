@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 480" role="img" aria-label="Patrimoine naturel et culturel de Ziguinchor">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0f3d26"/>
+      <stop offset="52%" stop-color="#1f6f43"/>
+      <stop offset="100%" stop-color="#e5b55c"/>
+    </linearGradient>
+    <linearGradient id="river" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#195c3f"/>
+      <stop offset="100%" stop-color="#0d3523"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="480" fill="url(#sky)"/>
+  <circle cx="585" cy="185" r="68" fill="#ffd984" opacity="0.9"/>
+  <circle cx="585" cy="185" r="95" fill="#ffd984" opacity="0.22"/>
+  <path d="M0 300 Q180 265 380 295 T800 280 L800 480 L0 480 Z" fill="#13482d"/>
+  <path d="M0 335 Q220 315 440 345 T800 330 L800 480 L0 480 Z" fill="url(#river)"/>
+  <!-- Silhouettes de palmiers -->
+  <g fill="#0c2c1b">
+    <path d="M130 330 Q145 250 155 185 L167 187 Q156 250 146 330 Z"/>
+    <path d="M158 186 Q110 155 82 178 Q120 176 156 194 Z"/>
+    <path d="M160 185 Q125 130 148 110 Q152 146 164 185 Z"/>
+    <path d="M162 186 Q205 145 232 162 Q196 168 164 192 Z"/>
+    <path d="M161 189 Q212 184 226 212 Q188 198 159 194 Z"/>
+    <path d="M675 315 Q665 245 655 190 L666 189 Q675 245 688 315 Z"/>
+    <path d="M658 190 Q610 165 592 186 Q628 182 657 196 Z"/>
+    <path d="M661 189 Q650 138 674 128 Q668 160 663 189 Z"/>
+    <path d="M664 190 Q712 160 738 184 Q700 184 665 197 Z"/>
+  </g>
+  <!-- Pirogue -->
+  <path d="M310 385 Q395 408 495 380 L472 398 Q395 416 326 398 Z" fill="#d9a441"/>
+  <path d="M405 388 L405 340 L432 365 Z" fill="#f7f5ef" opacity="0.9"/>
+  <text x="400" y="445" text-anchor="middle" fill="#f7f5ef" font-family="Segoe UI, Arial, sans-serif" font-size="20" font-weight="600" letter-spacing="1">
+    RÉGION DE ZIGUINCHOR • BASSE-CASAMANCE
+  </text>
+</svg>

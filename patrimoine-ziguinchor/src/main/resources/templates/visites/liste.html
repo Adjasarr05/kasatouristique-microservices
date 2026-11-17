@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: pageHead('Visites guidées')}"></head>
+<body>
+
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<section class="page-banner">
+    <div class="container d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+        <div>
+            <h1 class="h2 fw-bold mb-1">Visites guidées à venir</h1>
+            <p class="mb-0 text-white-50">Partez accompagné par des guides locaux expérimentés sur les plus beaux sites de Ziguinchor.</p>
+        </div>
+        <a sec:authorize="hasAnyRole('OPERATEUR_TOURISTIQUE','CONSERVATEUR','ADMINISTRATEUR_COMMUNAL','SUPER_ADMIN')" th:href="@{/visites/planifier}" class="btn btn-gold rounded-pill px-4">+ Planifier une visite</a>
+    </div>
+</section>
+
+<main class="container mb-5">
+    <div class="alert alert-warning rounded-4" th:if="${messagePatience}" th:text="${messagePatience}"></div>
+
+    <div class="row g-4">
+        <div class="col-md-6 col-lg-4" th:each="visite : ${visites}">
+            <div class="feature-card h-100 d-flex flex-column">
+                <div class="p-4 flex-grow-1">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="badge bg-success-subtle text-success rounded-pill px-3 py-2"
+                              th:text="${visite.dateHeureDebut != null ? #temporals.format(visite.dateHeureDebut, 'dd/MM/yyyy à HH:mm') : 'À planifier'}">Date</span>
+                        <span th:if="${!visite.complete}" class="badge bg-success rounded-pill"
+                              th:text="${visite.placesDisponibles} + ' place(s)'">Places</span>
+                        <span th:if="${visite.complete}" class="badge bg-danger rounded-pill">Complet</span>
+                    </div>
+
+                    <h5 class="fw-bold mb-2" th:text="${visite.site != null ? visite.site.nom : 'Site touristique'}">Site</h5>
+
+                    <p class="mb-1 small">
+                        <span th:if="${visite.guide != null and !visite.guide.isEmpty()}">
+                            👤 Guide : <strong th:text="${visite.guide}">Nom</strong>
+                        </span>
+                        <span th:if="${visite.guide == null or visite.guide.isEmpty()}" class="text-muted">Aucun guide assigné</span>
+                    </p>
+                    <p class="mb-1 small text-muted">⏱️ Durée estimée : <strong th:text="${visite.dureeMinutes}">60</strong> min</p>
+                    <p class="mb-0 small" th:if="${visite.circuit}">
+                        🧭 Circuit : <span class="badge bg-warning-subtle text-dark" th:text="${visite.circuit.nom}">Circuit</span>
+                    </p>
+                </div>
+
+                <div class="px-4 py-3 bg-light border-top d-flex justify-content-between align-items-center">
+                    <a th:if="${visite.site}" th:href="@{/sites/{id}(id=${visite.site.id})}"
+                       class="btn btn-sm btn-outline-success rounded-pill px-3">Voir le site</a>
+
+                    <div class="d-flex gap-2">
+                        <a sec:authorize="hasRole('VISITEUR')"
+                           th:if="${!visite.complete}"
+                           th:href="@{/reservations/nouvelle/{id}(id=${visite.id})}"
+                           class="btn btn-success btn-sm rounded-pill px-3">Réserver</a>
+                        <button sec:authorize="hasRole('VISITEUR')"
+                                th:if="${visite.complete}"
+                                type="button"
+                                class="btn btn-secondary btn-sm rounded-pill px-3" disabled>Complet</button>
+                        <a sec:authorize="!isAuthenticated()"
+                           th:href="@{/login}"
+                           class="btn btn-outline-success btn-sm rounded-pill px-3">Se connecter</a>
+                        <a sec:authorize="hasAnyRole('OPERATEUR_TOURISTIQUE','CONSERVATEUR','ADMINISTRATEUR_COMMUNAL','SUPER_ADMIN')" th:href="@{/visites/supprimer/{id}(id=${visite.id})}"
+                           class="btn btn-outline-danger btn-sm rounded-pill"
+                           onclick="return confirm('Supprimer cette visite ?');">Supprimer</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div th:if="${#lists.isEmpty(visites)}" class="col-12 text-center text-muted py-5">
+            Aucune visite planifiée pour le moment.
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+</body>
+</html>

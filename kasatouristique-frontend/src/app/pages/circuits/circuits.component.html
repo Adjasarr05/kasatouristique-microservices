@@ -1,0 +1,35 @@
+<section class="page-banner">
+  <div class="container d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+    <div>
+      <h1 class="h2 fw-bold mb-1">Circuits touristiques en Basse-Casamance</h1>
+      <p class="mb-0 text-white-50">Des itinéraires organisés pour découvrir le patrimoine culturel, fluvial et insulaire de la région.</p>
+    </div>
+  </div>
+</section>
+
+<main class="container mb-5">
+  <div class="row g-4">
+    <div class="col-md-6 col-lg-4" *ngFor="let c of circuits">
+      <div class="feature-card h-100 d-flex flex-column">
+        <div class="p-4 flex-grow-1">
+          <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
+            <span class="badge bg-success-subtle text-success rounded-pill px-3 py-2">
+              {{ (c.dureeHeures && c.dureeHeures > 24) ? '2 jour(s)' : '1 jour(s)' }}
+            </span>
+            <span class="badge bg-warning-subtle text-dark rounded-pill px-3 py-2 fw-bold">
+              {{ c.prix | number:'1.0-0' }} FCFA
+            </span>
+          </div>
+          <h5 class="fw-bold mb-2">{{ c.nom }}</h5>
+          <p class="text-muted small mb-0">{{ c.description }}</p>
+        </div>
+        <div class="px-4 py-3 bg-light border-top d-flex justify-content-between align-items-center">
+          <small class="text-muted">
+            Opérateur : <strong class="text-white">Opérateur Touristique Test</strong>
+          </small>
+          <a routerLink="/visites" class="btn btn-sm btn-kasa-gold rounded-pill px-3">Voir les départs</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>

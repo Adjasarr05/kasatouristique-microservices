@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout :: pageHead('Tableau de bord Administrateur')}"></head>
+<body>
+
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+
+<section class="page-banner">
+    <div class="container d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+        <div>
+            <h1 class="h2 fw-bold mb-1">Tableau de bord Administratif</h1>
+            <p class="mb-0 text-white-50">Supervision communale du patrimoine de Ziguinchor, validation des guides et modération.</p>
+        </div>
+        <div class="d-flex flex-wrap gap-2">
+            <a th:href="@{/sites/nouveau}" class="btn btn-gold rounded-pill px-3">+ Ajouter un site</a>
+            <a th:href="@{/visites/planifier}" class="btn btn-outline-light rounded-pill px-3">+ Planifier une visite</a>
+            <a th:href="@{/microservices}" class="btn btn-outline-light rounded-pill px-3">Microservices</a>
+        </div>
+    </div>
+</section>
+
+<main class="container mb-5">
+    <div class="alert alert-success rounded-4" th:if="${messageSucces}" th:text="${messageSucces}"></div>
+
+    <div class="row g-3 mb-5">
+        <div class="col-6 col-lg-3">
+            <div class="feature-card p-3 text-center">
+                <div class="display-6 fw-bold text-success" th:text="${nbSites}">0</div>
+                <div class="small text-muted">Sites touristiques</div>
+            </div>
+        </div>
+        <div class="col-6 col-lg-3">
+            <div class="feature-card p-3 text-center">
+                <div class="display-6 fw-bold text-warning" th:text="${nbCircuits}">0</div>
+                <div class="small text-muted">Circuits</div>
+            </div>
+        </div>
+        <div class="col-6 col-lg-3">
+            <div class="feature-card p-3 text-center">
+                <div class="display-6 fw-bold text-primary" th:text="${nbVisites}">0</div>
+                <div class="small text-muted">Visites planifiées</div>
+            </div>
+        </div>
+        <div class="col-6 col-lg-3">
+            <div class="feature-card p-3 text-center">
+                <div class="display-6 fw-bold text-dark" th:text="${nbReservations}">0</div>
+                <div class="small text-muted">Réservations</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="feature-card p-4 mb-4">
+        <h4 class="fw-bold mb-3">🪪 Validation des comptes guides</h4>
+        <div th:if="${#lists.isEmpty(guidesEnAttente)}" class="text-muted small">
+            Aucune demande de compte guide en attente de validation.
+        </div>
+        <div class="table-responsive" th:if="${!#lists.isEmpty(guidesEnAttente)}">
+            <table class="table align-middle">
+                <thead class="table-light">
+                <tr><th>Nom</th><th>Email</th><th>Téléphone</th><th>Spécialité</th><th>Langues</th><th>Décision</th></tr>
+                </thead>
+                <tbody>
+                <tr th:each="g : ${guidesEnAttente}">
+                    <td class="fw-semibold" th:text="${g.nom}">Nom</td>
+                    <td th:text="${g.email}">Email</td>
+                    <td th:text="${g.telephone != null ? g.telephone : '-'}">Tel</td>
+                    <td th:text="${g.specialite != null ? g.specialite : '-'}">Spé</td>
+                    <td th:text="${g.languesParlees != null ? g.languesParlees : '-'}">Langues</td>
+                    <td class="d-flex gap-2">
+                        <form th:action="@{/admin/guides/{id}/valider(id=${g.id})}" method="post">
+                            <button type="submit" class="btn btn-sm btn-success rounded-pill px-3">Valider</button>
+                        </form>
+                        <form th:action="@{/admin/guides/{id}/refuser(id=${g.id})}" method="post">
+                            <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-3">Refuser</button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="feature-card p-4 mb-4">
+        <h4 class="fw-bold mb-3">🚩 Modération des avis signalés</h4>
+        <div th:if="${#lists.isEmpty(avisSignales)}" class="text-muted small">
+            Aucun avis abusif signalé pour le moment.
+        </div>
+        <div class="table-responsive" th:if="${!#lists.isEmpty(avisSignales)}">
+            <table class="table align-middle">
+                <thead class="table-light">
+                <tr><th>Site</th><th>Auteur</th><th>Commentaire</th><th>Motif</th><th>Actions</th></tr>
+                </thead>
+                <tbody>
+                <tr th:each="a : ${avisSignales}">
+                    <td th:text="${a.siteTouristique != null ? a.siteTouristique.nom : '-'}">Site</td>
+                    <td th:text="${a.auteur}">Auteur</td>
+                    <td class="small" th:text="${a.commentaire}">Commentaire</td>
+                    <td><span class="badge bg-danger-subtle text-danger" th:text="${a.motifSignalement}">Motif</span></td>
+                    <td class="d-flex gap-2">
+                        <form th:action="@{/admin/avis/{id}/ignorer-signalement(id=${a.id})}" method="post">
+                            <button type="submit" class="btn btn-sm btn-outline-success rounded-pill">Conserver</button>
+                        </form>
+                        <form th:action="@{/admin/avis/{id}/supprimer(id=${a.id})}" method="post">
+                            <button type="submit" class="btn btn-sm btn-danger rounded-pill"
+                                    onclick="return confirm('Supprimer définitivement cet avis ?');">Supprimer</button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="feature-card p-4 mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h4 class="fw-bold mb-0">🏛️ Sites &amp; Horaires d'ouverture</h4>
+            <a th:href="@{/sites/nouveau}" class="btn btn-sm btn-success rounded-pill px-3">+ Nouveau site</a>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-sm align-middle">
+                <thead class="table-light">
+                <tr><th>Site</th><th>Quartier</th><th>Horaires d'ouverture</th><th>Actions</th></tr>
+                </thead>
+                <tbody>
+                <tr th:each="s : ${sites}">
+                    <td><a th:href="@{/sites/{id}(id=${s.id})}" class="fw-semibold text-decoration-none" th:text="${s.nom}">Site</a></td>
+                    <td class="small text-muted" th:text="${s.quartier}">Quartier</td>
+                    <td>
+                        <form th:action="@{/sites/{id}/horaires(id=${s.id})}" method="post" class="d-flex gap-1">
+                            <input type="text" name="horairesOuverture" th:value="${s.horairesOuverture}" class="form-control form-control-sm" required/>
+                            <button type="submit" class="btn btn-sm btn-outline-success">OK</button>
+                        </form>
+                    </td>
+                    <td class="d-flex gap-1">
+                        <a th:href="@{/sites/modifier/{id}(id=${s.id})}" class="btn btn-sm btn-outline-primary">Modifier</a>
+                        <a th:href="@{/sites/supprimer/{id}(id=${s.id})}" class="btn btn-sm btn-outline-danger"
+                           onclick="return confirm('Supprimer ce site ?');">Supprimer</a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="feature-card p-4" sec:authorize="hasRole('SUPER_ADMIN')">
+        <h4 class="fw-bold mb-3">⚙️ Super Admin : Gestion complète des utilisateurs et rôles</h4>
+        <div class="table-responsive">
+            <table class="table table-sm align-middle">
+                <thead class="table-light">
+                <tr><th>Nom</th><th>Email</th><th>Rôle</th><th>Validation</th><th>État</th><th>Actions</th></tr>
+                </thead>
+                <tbody>
+                <tr th:each="u : ${utilisateurs}">
+                    <td th:text="${u.nom}">Nom</td>
+                    <td th:text="${u.email}">Email</td>
+                    <td>
+                        <form th:action="@{/admin/utilisateurs/{id}/role(id=${u.id})}" method="post" class="d-flex gap-1">
+                            <select name="role" class="form-select form-select-sm">
+                                <option th:each="r : ${roles}" th:value="${r}" th:text="${r}" th:selected="${u.role == r}"></option>
+                            </select>
+                            <button type="submit" class="btn btn-sm btn-outline-primary">Changer</button>
+                        </form>
+                    </td>
+                    <td><span class="badge bg-secondary-subtle text-dark" th:text="${u.statutValidation}">VALIDE</span></td>
+                    <td>
+                        <span th:if="${u.actif}" class="badge bg-success">Actif</span>
+                        <span th:unless="${u.actif}" class="badge bg-danger">Inactif</span>
+                    </td>
+                    <td>
+                        <form th:action="@{/admin/utilisateurs/{id}/toggle-actif(id=${u.id})}" method="post">
+                            <button type="submit" class="btn btn-sm btn-outline-dark rounded-pill"
+                                    th:text="${u.actif ? 'Désactiver' : 'Activer'}">Toggle</button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+<th:block th:replace="~{fragments/layout :: scripts}"></th:block>
+</body>
+</html>

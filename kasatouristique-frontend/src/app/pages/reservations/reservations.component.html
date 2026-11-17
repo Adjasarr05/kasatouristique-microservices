@@ -1,0 +1,80 @@
+<section class="page-banner">
+  <div class="container d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+    <div>
+      <h1 class="h2 fw-bold mb-1">Mes réservations</h1>
+      <p class="mb-0 text-white-50">Retrouvez vos billets confirmés, les détails de vos réservations et vos QR codes d'accès.</p>
+    </div>
+    <a routerLink="/visites" class="btn btn-gold rounded-pill px-4">+ Réserver une visite</a>
+  </div>
+</section>
+
+<main class="container mb-5">
+  <div class="alert alert-success rounded-4" *ngIf="messageAvis">
+    {{ messageAvis }}
+  </div>
+
+  <div class="row g-4">
+    <div class="col-md-6 col-lg-4" *ngFor="let r of reservations">
+      <div class="feature-card h-100 d-flex flex-column">
+        <div class="p-4 flex-grow-1">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <span class="badge bg-success rounded-pill px-3 py-2">{{ r.statut }}</span>
+            <span class="badge bg-warning-subtle text-dark rounded-pill px-3 py-2 fw-semibold">
+              {{ r.nombrePlaces }} place(s)
+            </span>
+          </div>
+
+          <h5 class="fw-bold mb-1">{{ r.siteNom }}</h5>
+          <p class="small text-muted mb-3">{{ r.dateVisite }}</p>
+
+          <div class="p-3 rounded-3 bg-light small d-grid gap-1 mb-3">
+            <div>
+              👤 <strong>Réservé par :</strong> <span>{{ r.nomReservant }}</span>
+            </div>
+            <div>
+              ✉️ <strong>Email :</strong> <span>{{ r.emailReservant }}</span>
+            </div>
+            <div>
+              📞 <strong>Téléphone :</strong> <span>{{ r.telephone }}</span>
+            </div>
+            <div>
+              🧭 <strong>Guide :</strong> <span>{{ r.guide }}</span>
+            </div>
+            <div>
+              🗺️ <strong>Circuit :</strong> <span>{{ r.circuitNom }}</span>
+            </div>
+            <div>
+              💳 <strong>Paiement :</strong>
+              <span>{{ r.modePaiement }}</span> —
+              <strong class="text-success">{{ r.montant | number:'1.0-0' }} FCFA</strong>
+            </div>
+            <div class="text-muted">
+              🕒 Réservé le <span>{{ r.dateReservation }}</span>
+            </div>
+          </div>
+
+          <div class="text-center p-3 rounded-3 bg-light border mb-2">
+            <img [src]="r.urlQrCode" alt="QR code du billet" class="img-fluid rounded border p-1 bg-white" style="max-width: 140px;"/>
+            <div class="fw-bold text-success small mt-2">{{ r.qrCodeHash }}</div>
+            <p class="text-muted mb-0" style="font-size: .76rem;">
+              📱 Scannez pour afficher le billet officiel et les détails de visite
+            </p>
+          </div>
+        </div>
+
+        <div class="px-4 py-3 bg-light border-top text-center d-grid gap-2">
+          <button type="button" class="btn btn-outline-success btn-sm rounded-pill px-3 w-100" (click)="soumettreAvis(r.id)">
+            ★ Noter et commenter ma visite
+          </button>
+          <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-3" (click)="annuler(r.id)">
+            Annuler la réservation
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="reservations.length === 0" class="col-12 text-center text-muted py-5">
+      Aucune réservation enregistrée pour le moment.
+    </div>
+  </div>
+</main>

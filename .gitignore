@@ -1,0 +1,30 @@
+# Dossiers de compilation Maven
+**/target/
+*.jar
+*.war
+*.ear
+
+# Fichiers IntelliJ IDEA / VS Code / Eclipse
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+.settings/
+.classpath
+.project
+
+# Logs et fichiers temporaires
+*.log
+logs/
+
+# Fichiers systeme OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Frontend Angular / Node.js
+**/node_modules/
+**/dist/
+.angular/
+
