@@ -28,3 +28,6 @@ desktop.ini
 **/dist/
 .angular/
 
+# Documents prives
+GUIDE_COMPLET_SOUTENANCE_KASATOURISTIQUE.*
+
