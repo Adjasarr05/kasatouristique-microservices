@@ -1,6 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
+import { Subscription } from 'rxjs';
+import { AuthService, UserSession } from './services/auth.service';
 
 @Component({
   selector: 'app-root',
@@ -8,29 +10,25 @@ import { RouterModule, Router } from '@angular/router';
   imports: [CommonModule, RouterModule],
   templateUrl: './app.component.html'
 })
-export class AppComponent implements OnInit {
-  utilisateurConnecte: any = null;
+export class AppComponent implements OnInit, OnDestroy {
+  utilisateurConnecte: UserSession | null = null;
+  private subUser!: Subscription;
 
-  constructor(private router: Router) {}
+  constructor(public authService: AuthService, private router: Router) {}
 
   ngOnInit(): void {
-    this.verifierUtilisateur();
+    this.subUser = this.authService.currentUser$.subscribe(user => {
+      this.utilisateurConnecte = user;
+    });
   }
 
-  verifierUtilisateur(): void {
-    const raw = localStorage.getItem('kasa_user');
-    if (raw) {
-      try {
-        this.utilisateurConnecte = JSON.parse(raw);
-      } catch {
-        this.utilisateurConnecte = null;
-      }
+  ngOnDestroy(): void {
+    if (this.subUser) {
+      this.subUser.unsubscribe();
     }
   }
 
   deconnexion(): void {
-    localStorage.removeItem('kasa_user');
-    this.utilisateurConnecte = null;
-    this.router.navigate(['/']);
+    this.authService.logout();
   }
 }

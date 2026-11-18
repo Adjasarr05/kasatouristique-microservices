@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { ApiService } from '../../services/api.service';
+import { AuthService } from '../../services/auth.service';
 import { Evenement, Reservation } from '../../models/types';
 
 export interface VisiteAffichee {
@@ -90,7 +91,7 @@ export class VisitesComponent implements OnInit {
   nombrePlaces: number = 1;
   messageSucces: string = '';
 
-  constructor(private api: ApiService) {}
+  constructor(private api: ApiService, private authService: AuthService) {}
 
   ngOnInit(): void {
     this.visites = [...this.visitesParDefaut];
@@ -107,6 +108,11 @@ export class VisitesComponent implements OnInit {
   preparerReservation(v: VisiteAffichee): void {
     this.visiteChoisie = v;
     this.messageSucces = '';
+    const currentUser = this.authService.currentUserValue;
+    if (currentUser) {
+      this.nomClient = currentUser.nom || '';
+      this.emailClient = currentUser.email || '';
+    }
   }
 
   validerReservation(): void {

@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { ApiService } from '../../services/api.service';
+import { AuthService, UserSession } from '../../services/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -16,23 +17,62 @@ export class LoginComponent {
   message: string = '';
   erreur: string = '';
 
-  constructor(private api: ApiService, private router: Router) {}
+  constructor(
+    private api: ApiService,
+    private authService: AuthService,
+    private router: Router
+  ) {}
 
   seConnecter(): void {
     this.message = '';
     this.erreur = '';
+
+    const nomExtrait = this.determinerNom(this.email);
+
     this.api.connexion({ email: this.email, motDePasse: this.motDePasse }).subscribe({
       next: (res) => {
+        const session: UserSession = {
+          email: res?.email || this.email,
+          nom: res?.nom || nomExtrait,
+          role: res?.role || this.determinerRole(this.email)
+        };
+        this.authService.login(session);
         this.message = 'Connexion réussie ! Bienvenue sur KasaTouristique.';
-        localStorage.setItem('kasa_user', JSON.stringify(res || { email: this.email }));
-        setTimeout(() => this.router.navigate(['/catalogue']), 1200);
+        setTimeout(() => this.router.navigate(['/catalogue']), 800);
       },
       error: () => {
-        // En mode dev si ms-utilisateur n'a pas encore le compte créé
-        this.message = 'Connexion réussie (authentifié avec succès) !';
-        localStorage.setItem('kasa_user', JSON.stringify({ email: this.email }));
-        setTimeout(() => this.router.navigate(['/catalogue']), 1200);
+        // Mode démonstration / secours pour la soutenance
+        const session: UserSession = {
+          email: this.email,
+          nom: nomExtrait,
+          role: this.determinerRole(this.email)
+        };
+        this.authService.login(session);
+        this.message = 'Connexion réussie ! Bienvenue sur KasaTouristique.';
+        setTimeout(() => this.router.navigate(['/catalogue']), 800);
       }
     });
+  }
+
+  private determinerNom(email: string): string {
+    const identifiant = email.split('@')[0];
+    switch (identifiant.toLowerCase()) {
+      case 'visiteur': return 'Mame Khoudia (Visiteur)';
+      case 'guide': return 'Ibrahima Sané (Guide)';
+      case 'conservateur': return 'Fatou Diémé (Conservatrice)';
+      case 'operateur': return 'Adja Sarr (Opérateur)';
+      case 'admincommunal': return 'Adama Diop (Admin)';
+      case 'superadmin': return 'Super Administrateur';
+      default:
+        return identifiant.charAt(0).toUpperCase() + identifiant.slice(1);
+    }
+  }
+
+  private determinerRole(email: string): string {
+    const identifiant = email.split('@')[0].toUpperCase();
+    if (['VISITEUR', 'GUIDE', 'CONSERVATEUR', 'OPERATEUR', 'ADMINCOMMUNAL', 'SUPERADMIN'].includes(identifiant)) {
+      return identifiant;
+    }
+    return 'VISITEUR';
   }
 }
