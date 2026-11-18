@@ -15,6 +15,7 @@ export const routes: Routes = [
   { path: 'catalogue', component: CatalogueComponent },
   { path: 'categories', component: CategoriesComponent },
   { path: 'circuits', component: CircuitsComponent },
+  { path: 'circuits/mes-circuits', component: CircuitsComponent },
   { path: 'visites', component: VisitesComponent },
   { path: 'reservations', component: ReservationsComponent },
   { path: 'reservations/billet/:code', component: BilletComponent },

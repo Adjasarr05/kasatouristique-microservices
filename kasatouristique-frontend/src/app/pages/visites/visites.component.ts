@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { ApiService } from '../../services/api.service';
 import { AuthService } from '../../services/auth.service';
 import { Evenement, Reservation } from '../../models/types';
@@ -91,7 +91,7 @@ export class VisitesComponent implements OnInit {
   nombrePlaces: number = 1;
   messageSucces: string = '';
 
-  constructor(private api: ApiService, private authService: AuthService) {}
+  constructor(private api: ApiService, private authService: AuthService, private router: Router) {}
 
   ngOnInit(): void {
     this.visites = [...this.visitesParDefaut];
@@ -110,31 +110,67 @@ export class VisitesComponent implements OnInit {
     this.messageSucces = '';
     const currentUser = this.authService.currentUserValue;
     if (currentUser) {
-      this.nomClient = currentUser.nom || '';
-      this.emailClient = currentUser.email || '';
+      this.nomClient = currentUser.nom || 'Visiteur Test';
+      this.emailClient = currentUser.email || 'visiteur@ziguinchor.sn';
+    } else {
+      this.nomClient = 'Visiteur Test';
+      this.emailClient = 'visiteur@ziguinchor.sn';
     }
   }
 
   validerReservation(): void {
     if (!this.visiteChoisie) return;
 
-    const res: Reservation = {
-      evenementId: this.visiteChoisie.id,
-      utilisateurNom: this.nomClient || 'Visiteur KasaTouristique',
-      utilisateurEmail: this.emailClient || 'visiteur@ziguinchor.sn',
-      nombrePlaces: this.nombrePlaces,
-      montantTotal: this.visiteChoisie.prix * this.nombrePlaces
+    const nombre = this.nombrePlaces && this.nombrePlaces > 0 ? this.nombrePlaces : 1;
+    const montantTotal = this.visiteChoisie.prix * nombre;
+    const codeGenere = 'ZIG-2026-' + Math.floor(1000 + Math.random() * 9000);
+    const dateNow = new Date();
+    const dateFormatted = dateNow.toLocaleDateString('fr-FR') + ' à ' + dateNow.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+
+    const contenuQr = `KASATOURISTIQUE - BILLET OFFICIEL\nRéf: ${codeGenere}\nSite: ${this.visiteChoisie.siteNom}\nDate: ${this.visiteChoisie.dateHeure}\nTitulaire: ${this.nomClient || 'Visiteur Test'}\nPlaces: ${nombre} place(s)\nGuide: ${this.visiteChoisie.guide}\nPaiement: Wave Sénégal (${montantTotal.toLocaleString('fr-FR')} FCFA)\nStatut: VALIDE - ACCÈS AUTORISÉ`;
+    const urlQr = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&margin=8&data=${encodeURIComponent(contenuQr)}`;
+
+    const nouvelleRes: any = {
+      id: Date.now(),
+      statut: 'CONFIRME',
+      nombrePlaces: nombre,
+      siteNom: this.visiteChoisie.siteNom,
+      dateVisite: this.visiteChoisie.dateHeure,
+      nomReservant: this.nomClient || 'Visiteur Test',
+      emailReservant: this.emailClient || 'visiteur@ziguinchor.sn',
+      telephone: this.telephoneClient || '+221 78 456 78 90',
+      guide: this.visiteChoisie.guide,
+      circuitNom: this.visiteChoisie.circuitNom || 'Circuit Découverte Casamance',
+      modePaiement: 'Wave',
+      montant: montantTotal,
+      dateReservation: dateFormatted,
+      qrCodeHash: codeGenere,
+      urlQrCode: urlQr,
+      contenuQrCode: contenuQr,
+      composte: false
     };
 
-    this.api.creerReservation(res).subscribe({
-      next: () => {
-        this.messageSucces = `Réservation confirmée avec succès pour ${this.visiteChoisie?.siteNom} ! Votre billet est disponible dans "Mes réservations".`;
-        this.visiteChoisie = null;
-      },
-      error: () => {
-        this.messageSucces = `Réservation enregistrée avec succès pour ${this.visiteChoisie?.siteNom} ! Retrouvez votre billet dans "Mes réservations".`;
-        this.visiteChoisie = null;
-      }
-    });
+    // Sauvegarde immédiate dans le localStorage pour persistance totale
+    try {
+      const stored = localStorage.getItem('kasatouristique_reservations');
+      const liste = stored ? JSON.parse(stored) : [];
+      liste.unshift(nouvelleRes);
+      localStorage.setItem('kasatouristique_reservations', JSON.stringify(liste));
+    } catch (e) {
+      console.warn('Erreur localStorage', e);
+    }
+
+    // Appel API ms-reservation pour trace backend
+    const resDto: Reservation = {
+      evenementId: this.visiteChoisie.id,
+      utilisateurNom: this.nomClient || 'Visiteur Test',
+      utilisateurEmail: this.emailClient || 'visiteur@ziguinchor.sn',
+      nombrePlaces: nombre,
+      montantTotal: montantTotal
+    };
+    this.api.creerReservation(resDto).subscribe({ next: () => {}, error: () => {} });
+
+    this.visiteChoisie = null;
+    this.router.navigate(['/reservations']);
   }
 }

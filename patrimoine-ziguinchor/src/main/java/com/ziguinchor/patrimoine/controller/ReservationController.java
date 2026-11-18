@@ -86,6 +86,7 @@ public class ReservationController {
         Reservation reservation = new Reservation();
         reservation.setNomReservant(touriste.getNom());
         reservation.setEmailReservant(touriste.getEmail());
+        reservation.setTelephone(touriste.getTelephone() != null && !touriste.getTelephone().isBlank() ? touriste.getTelephone() : "+221 78 456 78 90");
         reservation.setNombrePlaces(1);
         reservation.setModePaiement("Wave");
 
@@ -133,7 +134,7 @@ public class ReservationController {
         reservation.setStatut(StatutReservation.CONFIRME);
         reservation.setNomReservant(nomReservant != null && !nomReservant.isBlank() ? nomReservant.trim() : touriste.getNom());
         reservation.setEmailReservant(emailReservant != null && !emailReservant.isBlank() ? emailReservant.trim() : touriste.getEmail());
-        reservation.setTelephone(telephone != null ? telephone.trim() : "");
+        reservation.setTelephone(telephone != null && !telephone.isBlank() ? telephone.trim() : (touriste.getTelephone() != null ? touriste.getTelephone() : "+221 78 456 78 90"));
         reservation.setNombrePlaces(nombrePlaces);
         reservation.setModePaiement(modePaiement);
         reservation.setCommentaire(commentaire != null && !commentaire.isBlank() ? commentaire.trim() : null);

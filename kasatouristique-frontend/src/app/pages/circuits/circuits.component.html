@@ -1,4 +1,5 @@
-<section class="page-banner">
+<!-- Vue standard pour Visiteurs et grand public -->
+<section class="page-banner" *ngIf="!authService.estOperateur()">
   <div class="container d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
     <div>
       <h1 class="h2 fw-bold mb-1">Circuits touristiques en Basse-Casamance</h1>
@@ -7,8 +8,58 @@
   </div>
 </section>
 
+<!-- Vue "Mes circuits" pour Opérateur Touristique (Identique au portail web) -->
+<section class="page-banner" *ngIf="authService.estOperateur()">
+  <div class="container d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+    <div>
+      <h1 class="h2 fw-bold mb-1 text-white">Mes circuits</h1>
+      <p class="mb-0 text-white-50">Gestion de vos itinéraires touristiques proposés en région de Ziguinchor.</p>
+    </div>
+    <button type="button" class="btn btn-kasa-gold rounded-pill px-4 fw-bold" (click)="ouvrirModal()">
+      + Proposer un circuit
+    </button>
+  </div>
+</section>
+
 <main class="container mb-5">
-  <div class="row g-4">
+  <div *ngIf="messageSucces" class="alert alert-success rounded-4 mb-4">
+    {{ messageSucces }}
+  </div>
+
+  <!-- TABLEAU IDENTIQUE À LA CAPTURE D'ÉCRAN DE L'OPÉRATEUR SUR LE PORTAIL WEB -->
+  <div *ngIf="authService.estOperateur()" class="card rounded-4 border-0 shadow-lg overflow-hidden mb-5" style="background: #0d1a30; border: 1px solid rgba(229, 160, 36, 0.3) !important;">
+    <div class="table-responsive">
+      <table class="table table-dark table-hover align-middle mb-0" style="background: transparent;">
+        <thead style="background: #15243e; color: #a3b8cc;">
+          <tr>
+            <th class="ps-4 py-3">Nom</th>
+            <th class="py-3">Durée</th>
+            <th class="py-3">Prix</th>
+            <th class="py-3">Statut</th>
+            <th class="pe-4 py-3 text-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let c of circuits">
+            <td class="ps-4 py-3 fw-bold text-white">{{ c.nom }}</td>
+            <td class="py-3 text-white-50">{{ (c.dureeHeures && c.dureeHeures > 24) ? '2 jour(s)' : '1 jour(s)' }}</td>
+            <td class="py-3 fw-semibold text-warning">{{ c.prix | number:'1.1-1' }} FCFA</td>
+            <td class="py-3">
+              <span class="badge bg-success rounded-pill px-3 py-1">PUBLIE</span>
+            </td>
+            <td class="pe-4 py-3 text-end">
+              <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-3" (click)="supprimerCircuit(c.id)">
+                Supprimer
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- GRILLE DES CIRCUITS (POUR TOUS LES UTILISATEURS) -->
+  <div class="row g-4" *ngIf="!authService.estOperateur()">
     <div class="col-md-6 col-lg-4" *ngFor="let c of circuits">
       <div class="feature-card h-100 d-flex flex-column">
         <div class="p-4 flex-grow-1">
@@ -28,6 +79,42 @@
             Opérateur : <strong class="text-white">Opérateur Touristique Test</strong>
           </small>
           <a routerLink="/visites" class="btn btn-sm btn-kasa-gold rounded-pill px-3">Voir les départs</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Nouveau Circuit -->
+  <div class="modal fade show d-block" *ngIf="modalNouveauCircuit" style="background: rgba(0,0,0,0.75); backdrop-filter: blur(8px);">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content text-white rounded-4 border-0 shadow" style="background: #0d1a30; border: 1px solid rgba(229, 160, 36, 0.4) !important;">
+        <div class="modal-header border-0 pb-0">
+          <h5 class="modal-title fw-bold text-white">+ Proposer un nouveau circuit</h5>
+          <button type="button" class="btn-close btn-close-white" (click)="fermerModal()"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label small fw-semibold text-light">Nom du circuit *</label>
+            <input type="text" class="form-control rounded-pill" [(ngModel)]="nouveauCircuit.nom" placeholder="Ex : Safari Écotourisme Oussouye">
+          </div>
+          <div class="mb-3">
+            <label class="form-label small fw-semibold text-light">Description de l'itinéraire</label>
+            <textarea class="form-control rounded-3" rows="3" [(ngModel)]="nouveauCircuit.description" placeholder="Étapes, monuments visités, étapes en pirogue..."></textarea>
+          </div>
+          <div class="row g-2 mb-3">
+            <div class="col-6">
+              <label class="form-label small fw-semibold text-light">Durée estimée (heures)</label>
+              <input type="number" class="form-control rounded-pill" [(ngModel)]="nouveauCircuit.dureeHeures">
+            </div>
+            <div class="col-6">
+              <label class="form-label small fw-semibold text-light">Tarif forfaitaire (FCFA)</label>
+              <input type="number" class="form-control rounded-pill" [(ngModel)]="nouveauCircuit.prix">
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer border-0 pt-0">
+          <button type="button" class="btn btn-secondary rounded-pill px-3" (click)="fermerModal()">Annuler</button>
+          <button type="button" class="btn btn-kasa-gold rounded-pill px-4" (click)="enregistrerCircuit()">Publier le circuit</button>
         </div>
       </div>
     </div>

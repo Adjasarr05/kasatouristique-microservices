@@ -39,10 +39,45 @@ export class ReservationsComponent implements OnInit {
   constructor(private api: ApiService) {}
 
   ngOnInit(): void {
-    const r1Hash = 'ZIG-2026-7841';
-    const r2Hash = 'ZIG-2026-9214';
-
-    this.reservations = [
+    const reservationsInitiales: ReservationDetaillee[] = [
+      {
+        id: 101,
+        statut: 'CONFIRME',
+        nombrePlaces: 1,
+        siteNom: 'Mémorial-Musée du Bateau Le Joola',
+        dateVisite: '20/11/2026 à 09:30',
+        nomReservant: 'Visiteur Test',
+        emailReservant: 'visiteur@ziguinchor.sn',
+        telephone: '+221 78 456 78 90',
+        guide: 'Ibrahima Sané',
+        circuitNom: 'Cité Historique de Ziguinchor & Mémorial Le Joola',
+        modePaiement: 'Wave — 12 000 FCFA',
+        montant: 12000,
+        dateReservation: '18/11/2026 à 12:14',
+        qrCodeHash: 'ZIG-2026-WVGT',
+        urlQrCode: `https://api.qrserver.com/v1/create-qr-code/?size=250x250&margin=8&data=${encodeURIComponent('KASATOURISTIQUE - BILLET OFFICIEL\nRéf : ZIG-2026-WVGT\nSite réservé : Mémorial-Musée du Bateau Le Joola\nLieu : Escale - Port de Ziguinchor\nDate visite : 20/11/2026 à 09:30\nGuide : Ibrahima Sané\nCircuit : Cité Historique de Ziguinchor & Mémorial Le Joola\nRéservé par : Visiteur Test (+221 78 456 78 90)\nPlaces : 1 place(s)\nMontant : 12 000 FCFA (Wave)\nStatut : CONFIRME')}`,
+        contenuQrCode: `KASATOURISTIQUE - BILLET OFFICIEL\nRéf : ZIG-2026-WVGT\nSite réservé : Mémorial-Musée du Bateau Le Joola\nLieu : Escale - Port de Ziguinchor\nDate visite : 20/11/2026 à 09:30\nGuide : Ibrahima Sané\nCircuit : Cité Historique de Ziguinchor & Mémorial Le Joola\nRéservé par : Visiteur Test (+221 78 456 78 90)\nPlaces : 1 place(s)\nMontant : 12 000 FCFA (Wave)\nStatut : CONFIRME`,
+        composte: false
+      },
+      {
+        id: 102,
+        statut: 'CONFIRME',
+        nombrePlaces: 1,
+        siteNom: 'Mémorial-Musée du Bateau Le Joola',
+        dateVisite: '20/11/2026 à 09:30',
+        nomReservant: 'Visiteur Test',
+        emailReservant: 'visiteur@ziguinchor.sn',
+        telephone: '+221 78 456 78 90',
+        guide: 'Ibrahima Sané',
+        circuitNom: 'Cité Historique de Ziguinchor & Mémorial Le Joola',
+        modePaiement: 'Wave — 12 000 FCFA',
+        montant: 12000,
+        dateReservation: '18/11/2026 à 14:13',
+        qrCodeHash: 'ZIG-2026-4FFF',
+        urlQrCode: `https://api.qrserver.com/v1/create-qr-code/?size=250x250&margin=8&data=${encodeURIComponent('KASATOURISTIQUE - BILLET OFFICIEL\nRéf : ZIG-2026-4FFF\nSite réservé : Mémorial-Musée du Bateau Le Joola\nLieu : Escale - Port de Ziguinchor\nDate visite : 20/11/2026 à 09:30\nGuide : Ibrahima Sané\nCircuit : Cité Historique de Ziguinchor & Mémorial Le Joola\nRéservé par : Visiteur Test (+221 78 456 78 90)\nPlaces : 1 place(s)\nMontant : 12 000 FCFA (Wave)\nStatut : CONFIRME')}`,
+        contenuQrCode: `KASATOURISTIQUE - BILLET OFFICIEL\nRéf : ZIG-2026-4FFF\nSite réservé : Mémorial-Musée du Bateau Le Joola\nLieu : Escale - Port de Ziguinchor\nDate visite : 20/11/2026 à 09:30\nGuide : Ibrahima Sané\nCircuit : Cité Historique de Ziguinchor & Mémorial Le Joola\nRéservé par : Visiteur Test (+221 78 456 78 90)\nPlaces : 1 place(s)\nMontant : 12 000 FCFA (Wave)\nStatut : CONFIRME`,
+        composte: false
+      },
       {
         id: 1,
         statut: 'CONFIRME',
@@ -57,9 +92,9 @@ export class ReservationsComponent implements OnInit {
         modePaiement: 'Wave Sénégal',
         montant: 10000,
         dateReservation: '16/11/2026 à 14:20',
-        qrCodeHash: r1Hash,
-        urlQrCode: this.genererQrSvg(r1Hash),
-        contenuQrCode: `KASATOURISTIQUE - BILLET OFFICIEL\nRéf: ${r1Hash}\nSite: Mémorial-Musée du Bateau Le Joola\nDate: 18/11/2026 à 09:30\nTitulaire: Aminata Sonko\nPlaces: 2 place(s)\nGuide: Ibrahima Sané\nPaiement: Wave Sénégal (10 000 FCFA)\nStatut: VALIDE - ACCÈS AUTORISÉ`,
+        qrCodeHash: 'ZIG-2026-7841',
+        urlQrCode: `https://api.qrserver.com/v1/create-qr-code/?size=250x250&margin=8&data=${encodeURIComponent('KASATOURISTIQUE - BILLET OFFICIEL\nRéf: ZIG-2026-7841\nSite: Mémorial-Musée du Bateau Le Joola\nDate: 18/11/2026 à 09:30\nTitulaire: Aminata Sonko\nPlaces: 2 place(s)\nGuide: Ibrahima Sané\nPaiement: Wave Sénégal (10 000 FCFA)\nStatut: VALIDE - ACCÈS AUTORISÉ')}`,
+        contenuQrCode: `KASATOURISTIQUE - BILLET OFFICIEL\nRéf: ZIG-2026-7841\nSite: Mémorial-Musée du Bateau Le Joola\nDate: 18/11/2026 à 09:30\nTitulaire: Aminata Sonko\nPlaces: 2 place(s)\nGuide: Ibrahima Sané\nPaiement: Wave Sénégal (10 000 FCFA)\nStatut: VALIDE - ACCÈS AUTORISÉ`,
         composte: false
       },
       {
@@ -76,12 +111,45 @@ export class ReservationsComponent implements OnInit {
         modePaiement: 'Orange Money',
         montant: 8000,
         dateReservation: '16/11/2026 à 16:45',
-        qrCodeHash: r2Hash,
-        urlQrCode: this.genererQrSvg(r2Hash),
-        contenuQrCode: `KASATOURISTIQUE - BILLET OFFICIEL\nRéf: ${r2Hash}\nSite: Cases à Impluvium Traditionnelles d\'Enampore\nDate: 20/11/2026 à 08:30\nTitulaire: Mamadou Diatta\nPlaces: 1 place(s)\nGuide: Fatou Diémé\nPaiement: Orange Money (8 000 FCFA)\nStatut: VALIDE - ACCÈS AUTORISÉ`,
+        qrCodeHash: 'ZIG-2026-9214',
+        urlQrCode: `https://api.qrserver.com/v1/create-qr-code/?size=250x250&margin=8&data=${encodeURIComponent('KASATOURISTIQUE - BILLET OFFICIEL\nRéf: ZIG-2026-9214\nSite: Cases à Impluvium Traditionnelles d\'Enampore\nDate: 20/11/2026 à 08:30\nTitulaire: Mamadou Diatta\nPlaces: 1 place(s)\nGuide: Fatou Diémé\nPaiement: Orange Money (8 000 FCFA)\nStatut: VALIDE - ACCÈS AUTORISÉ')}`,
+        contenuQrCode: `KASATOURISTIQUE - BILLET OFFICIEL\nRéf: ZIG-2026-9214\nSite: Cases à Impluvium Traditionnelles d\'Enampore\nDate: 20/11/2026 à 08:30\nTitulaire: Mamadou Diatta\nPlaces: 1 place(s)\nGuide: Fatou Diémé\nPaiement: Orange Money (8 000 FCFA)\nStatut: VALIDE - ACCÈS AUTORISÉ`,
         composte: false
       }
     ];
+
+    try {
+      const stored = localStorage.getItem('kasatouristique_reservations');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          // Fusionner avec les réservations initiales si besoin
+          const hashes = new Set(parsed.map((r: any) => r.qrCodeHash));
+          for (const initRes of reservationsInitiales) {
+            if (!hashes.has(initRes.qrCodeHash)) {
+              parsed.push(initRes);
+            }
+          }
+          this.reservations = parsed;
+          localStorage.setItem('kasatouristique_reservations', JSON.stringify(this.reservations));
+        } else {
+          this.reservations = reservationsInitiales;
+          localStorage.setItem('kasatouristique_reservations', JSON.stringify(reservationsInitiales));
+        }
+      } else {
+        this.reservations = reservationsInitiales;
+        localStorage.setItem('kasatouristique_reservations', JSON.stringify(reservationsInitiales));
+      }
+    } catch (e) {
+      this.reservations = reservationsInitiales;
+    }
+
+    // Assurer que chaque réservation a bien son URL QR code valide
+    for (const r of this.reservations) {
+      if (!r.urlQrCode || r.urlQrCode.startsWith('data:image/svg')) {
+        r.urlQrCode = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&margin=8&data=${encodeURIComponent(r.contenuQrCode || r.qrCodeHash)}`;
+      }
+    }
 
     this.api.getReservations().subscribe({
       next: (data) => {
@@ -175,6 +243,9 @@ export class ReservationsComponent implements OnInit {
     if (this.billetSelectionne) {
       this.billetSelectionne.composte = true;
       this.billetSelectionne.statut = 'VALIDÉ / ENTRÉE SUR SITE EFFECTUÉE';
+      try {
+        localStorage.setItem('kasatouristique_reservations', JSON.stringify(this.reservations));
+      } catch (e) {}
     }
   }
 
@@ -214,6 +285,9 @@ export class ReservationsComponent implements OnInit {
   annuler(id: number): void {
     if (confirm('Voulez-vous vraiment annuler cette réservation ?')) {
       this.reservations = this.reservations.filter(r => r.id !== id);
+      try {
+        localStorage.setItem('kasatouristique_reservations', JSON.stringify(this.reservations));
+      } catch (e) {}
       if (this.billetSelectionne && this.billetSelectionne.id === id) {
         this.billetSelectionne = null;
       }

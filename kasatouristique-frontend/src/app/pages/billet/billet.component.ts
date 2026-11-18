@@ -45,12 +45,65 @@ export class BilletComponent implements OnInit {
         this.codeHash = params['code'];
         this.billet.qrCodeHash = this.codeHash;
       }
+      this.chargerDonneesBillet();
     });
+  }
 
-    this.billet.contenuQrCode = `KASATOURISTIQUE - BILLET OFFICIEL\nRéf : ${this.billet.qrCodeHash}\nSite réservé : ${this.billet.siteNom}\nLieu : ${this.billet.quartier}\nDate visite : ${this.billet.dateVisite}\nGuide : ${this.billet.guide}\nCircuit : ${this.billet.circuitNom}\nRéservé par : ${this.billet.nomReservant} (${this.billet.telephone})\nPlaces : ${this.billet.nombrePlaces} place(s)\nMontant : 10 000 FCFA (${this.billet.modePaiement})\nStatut : CONFIRME`;
+  chargerDonneesBillet(): void {
+    const clean = this.codeHash.toUpperCase().trim();
 
-    // Utilisation d'un QR code vectoriel SVG pur généré localement (100% hors-ligne)
-    this.urlQrCode = this.genererQrSvg(this.billet.contenuQrCode);
+    // 1. Chercher dans le localStorage
+    let rFound: any = null;
+    try {
+      const stored = localStorage.getItem('kasatouristique_reservations');
+      if (stored) {
+        const list = JSON.parse(stored);
+        rFound = list.find((r: any) => r.qrCodeHash && r.qrCodeHash.toUpperCase() === clean);
+      }
+    } catch (e) {}
+
+    if (rFound) {
+      this.billet.siteNom = rFound.siteNom;
+      this.billet.nomReservant = rFound.nomReservant;
+      this.billet.emailReservant = rFound.emailReservant;
+      this.billet.telephone = rFound.telephone || '+221 78 456 78 90';
+      this.billet.dateVisite = rFound.dateVisite;
+      this.billet.guide = rFound.guide;
+      this.billet.circuitNom = rFound.circuitNom;
+      this.billet.nombrePlaces = rFound.nombrePlaces;
+      this.billet.montant = rFound.montant;
+      this.billet.modePaiement = rFound.modePaiement;
+      this.billet.statut = rFound.composte ? 'VALIDÉ / ENTRÉE SUR SITE EFFECTUÉE' : 'CONFIRME';
+      this.billet.qrCodeHash = rFound.qrCodeHash;
+    } else if (clean.includes('WVGT') || clean.includes('4FFF')) {
+      this.billet.siteNom = 'Mémorial-Musée du Bateau Le Joola';
+      this.billet.nomReservant = 'Visiteur Test';
+      this.billet.emailReservant = 'visiteur@ziguinchor.sn';
+      this.billet.telephone = '+221 78 456 78 90';
+      this.billet.dateVisite = '20/11/2026 à 09:30';
+      this.billet.guide = 'Ibrahima Sané';
+      this.billet.circuitNom = 'Cité Historique de Ziguinchor & Mémorial Le Joola';
+      this.billet.nombrePlaces = 1;
+      this.billet.montant = 12000;
+      this.billet.modePaiement = 'Wave';
+      this.billet.statut = 'CONFIRME';
+    } else if (clean.includes('9214')) {
+      this.billet.siteNom = 'Cases à Impluvium Traditionnelles d\'Enampore';
+      this.billet.quartier = 'Enampore • Nyassia (Ziguinchor)';
+      this.billet.imageUrl = '/images/sites/cases-impluvium.jpg';
+      this.billet.nomReservant = 'Mamadou Diatta';
+      this.billet.telephone = '+221 78 456 78 90';
+      this.billet.dateVisite = '20/11/2026 à 08:30';
+      this.billet.guide = 'Fatou Diémé';
+      this.billet.circuitNom = 'Trésors d\'Oussouye : Enampore, Mlomp & Île de Carabane';
+      this.billet.nombrePlaces = 1;
+      this.billet.montant = 8000;
+      this.billet.modePaiement = 'Orange Money';
+      this.billet.statut = 'CONFIRME';
+    }
+
+    this.billet.contenuQrCode = `KASATOURISTIQUE - BILLET OFFICIEL\nRéf : ${this.billet.qrCodeHash}\nSite réservé : ${this.billet.siteNom}\nLieu : ${this.billet.quartier}\nDate visite : ${this.billet.dateVisite}\nGuide : ${this.billet.guide}\nCircuit : ${this.billet.circuitNom}\nRéservé par : ${this.billet.nomReservant} (${this.billet.telephone})\nPlaces : ${this.billet.nombrePlaces} place(s)\nMontant : ${this.billet.montant} FCFA (${this.billet.modePaiement})\nStatut : ${this.billet.statut}`;
+    this.urlQrCode = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&margin=8&data=${encodeURIComponent(this.billet.contenuQrCode)}`;
   }
 
   genererQrSvg(texte: string): string {

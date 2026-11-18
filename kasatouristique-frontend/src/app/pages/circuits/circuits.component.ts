@@ -1,13 +1,15 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { ApiService } from '../../services/api.service';
+import { AuthService } from '../../services/auth.service';
 import { Circuit } from '../../models/types';
 
 @Component({
   selector: 'app-circuits',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, FormsModule],
   templateUrl: './circuits.component.html'
 })
 export class CircuitsComponent implements OnInit {
@@ -45,8 +47,16 @@ export class CircuitsComponent implements OnInit {
   ];
 
   circuits: Circuit[] = [];
+  modalNouveauCircuit = false;
+  messageSucces = '';
+  nouveauCircuit = {
+    nom: '',
+    description: '',
+    dureeHeures: 24,
+    prix: 15000
+  };
 
-  constructor(private api: ApiService) {}
+  constructor(private api: ApiService, public authService: AuthService) {}
 
   ngOnInit(): void {
     this.circuits = [...this.circuitsParDefaut];
@@ -58,5 +68,41 @@ export class CircuitsComponent implements OnInit {
       },
       error: () => {}
     });
+  }
+
+  ouvrirModal(): void {
+    this.modalNouveauCircuit = true;
+    this.messageSucces = '';
+  }
+
+  fermerModal(): void {
+    this.modalNouveauCircuit = false;
+  }
+
+  enregistrerCircuit(): void {
+    if (!this.nouveauCircuit.nom) return;
+    const nouveau: Circuit = {
+      id: Date.now(),
+      nom: this.nouveauCircuit.nom,
+      description: this.nouveauCircuit.description || 'Circuit touristique en Basse-Casamance',
+      dureeHeures: this.nouveauCircuit.dureeHeures || 24,
+      distanceKm: 25,
+      difficulte: 'FACILE',
+      prix: this.nouveauCircuit.prix || 15000,
+      actif: true
+    };
+    this.circuits.unshift(nouveau);
+    this.messageSucces = `Circuit "${nouveau.nom}" ajouté avec succès !`;
+    setTimeout(() => {
+      this.messageSucces = '';
+      this.modalNouveauCircuit = false;
+    }, 1500);
+  }
+
+  supprimerCircuit(id: number | undefined): void {
+    if (!id) return;
+    if (confirm('Voulez-vous vraiment supprimer ce circuit touristique ?')) {
+      this.circuits = this.circuits.filter(c => c.id !== id);
+    }
   }
 }
