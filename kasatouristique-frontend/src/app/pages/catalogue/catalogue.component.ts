@@ -3,7 +3,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { ApiService } from '../../services/api.service';
-import { Patrimoine, Categorie } from '../../models/types';
+import { AuthService } from '../../services/auth.service';
+import { Patrimoine, Categorie, Avis } from '../../models/types';
 
 @Component({
   selector: 'app-catalogue',
@@ -178,9 +179,38 @@ export class CatalogueComponent implements OnInit {
   categorieSelectionnee: string = '';
   siteDetail: Patrimoine | null = null;
 
-  constructor(private api: ApiService, private route: ActivatedRoute) {}
+  // Gestion des avis sur les sites
+  nouvelAvis = {
+    auteur: '',
+    note: 5,
+    commentaire: ''
+  };
+  messageSuccesAvis: string = '';
+
+  constructor(
+    private api: ApiService,
+    public authService: AuthService,
+    private route: ActivatedRoute
+  ) {}
 
   ngOnInit(): void {
+    // Initialiser les avis initiaux sur chaque site pour être identique au portail web
+    this.sitesParDefaut[0].avis = [
+      { id: 1, auteur: 'Astou Diémé', note: 5, commentaire: 'Un monument paisible et magnifique en plein cœur de Ziguinchor.', dateCreation: '16/11/2026' }
+    ];
+    this.sitesParDefaut[1].avis = [
+      { id: 2, auteur: 'Ousmane Sonko', note: 5, commentaire: 'Lieu émouvant et indispensable pour comprendre l\'histoire contemporaine de la Casamance.', dateCreation: '15/11/2026' }
+    ];
+    this.sitesParDefaut[2].avis = [
+      { id: 3, auteur: 'Moussa Sané', note: 4, commentaire: 'Très animé et parfait pour acheter de l\'artisanat, du miel de mangrove et du bissap.', dateCreation: '14/11/2026' }
+    ];
+    this.sitesParDefaut[7].avis = [
+      { id: 4, auteur: 'Fatou Badji', note: 5, commentaire: 'Architecture traditionnelle impressionnante, fraîcheur naturelle garantie à l\'intérieur !', dateCreation: '12/11/2026' }
+    ];
+    this.sitesParDefaut[8].avis = [
+      { id: 5, auteur: 'Jean-Paul M.', note: 5, commentaire: 'Les cases à étage en banco et le musée racontent merveilleusement la culture diola.', dateCreation: '10/11/2026' }
+    ];
+
     this.sites = [...this.sitesParDefaut];
     this.categories = [...this.categoriesParDefaut];
 
@@ -232,9 +262,55 @@ export class CatalogueComponent implements OnInit {
 
   ouvrirDetail(site: Patrimoine): void {
     this.siteDetail = site;
+    this.messageSuccesAvis = '';
+    const user = this.authService.currentUserValue;
+    this.nouvelAvis.auteur = user ? (user.nom || user.email) : '';
+    this.nouvelAvis.note = 5;
+    this.nouvelAvis.commentaire = '';
+    if (!this.siteDetail.avis) {
+      this.siteDetail.avis = [];
+    }
   }
 
   fermerDetail(): void {
     this.siteDetail = null;
+  }
+
+  envoyerAvis(): void {
+    if (!this.siteDetail || !this.nouvelAvis.commentaire) return;
+
+    const nouvel: Avis = {
+      id: Date.now(),
+      auteur: this.nouvelAvis.auteur || 'Visiteur KasaTouristique',
+      note: Number(this.nouvelAvis.note),
+      commentaire: this.nouvelAvis.commentaire,
+      dateCreation: 'Aujourd\'hui'
+    };
+
+    if (!this.siteDetail.avis) {
+      this.siteDetail.avis = [];
+    }
+    this.siteDetail.avis.unshift(nouvel);
+
+    if (this.siteDetail.id) {
+      this.api.ajouterAvis(this.siteDetail.id, nouvel).subscribe({
+        next: () => {},
+        error: () => {}
+      });
+    }
+
+    this.messageSuccesAvis = 'Votre avis a été publié avec succès et enregistré dans le patrimoine de Ziguinchor !';
+    this.nouvelAvis.commentaire = '';
+  }
+
+  calculerNoteMoyenne(site: Patrimoine): number {
+    if (!site.avis || site.avis.length === 0) return 4.8;
+    const total = site.avis.reduce((acc, a) => acc + (a.note || 5), 0);
+    return Math.round((total / site.avis.length) * 10) / 10;
+  }
+
+  genererEtoiles(note: number): string {
+    const pleine = Math.round(note);
+    return '★'.repeat(pleine);
   }
 }

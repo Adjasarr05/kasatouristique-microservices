@@ -79,10 +79,71 @@
         <div class="modal-body">
           <img [src]="siteDetail.imageUrl || 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800'" class="img-fluid rounded-4 mb-3 w-100" style="max-height: 320px; object-fit: cover;">
           <p class="text-light">{{ siteDetail.description }}</p>
-          <div class="p-3 rounded-3 mb-3" style="background: rgba(229, 160, 36, 0.08); border-left: 4px solid var(--kt-gold-500);">
+          <div class="p-3 rounded-3 mb-4" style="background: rgba(229, 160, 36, 0.08); border-left: 4px solid var(--kt-gold-500);">
             <h6 class="fw-bold mb-1 text-warning">Localisation &amp; Informations</h6>
             <p class="small text-light mb-0"><strong>Adresse :</strong> {{ siteDetail.adresse || 'Ziguinchor, Casamance' }}</p>
             <p class="small text-light mb-0"><strong>Horaires :</strong> {{ siteDetail.horairesOuverture || '08h00 - 18h00' }}</p>
+          </div>
+
+          <!-- SECTION AVIS DES VISITEURS (IDENTIQUE AU PORTAIL WEB) -->
+          <div class="mt-4 pt-3 border-top border-light border-opacity-10">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h5 class="fw-bold mb-0 text-white">Avis des visiteurs</h5>
+              <span class="badge bg-warning text-dark fw-bold rounded-pill px-3 py-2">
+                ★ {{ calculerNoteMoyenne(siteDetail) }} / 5 ({{ siteDetail.avis ? siteDetail.avis.length : 0 }} avis)
+              </span>
+            </div>
+
+            <!-- Liste des avis -->
+            <div *ngIf="siteDetail.avis && siteDetail.avis.length > 0" class="d-grid gap-2 mb-4">
+              <div *ngFor="let a of siteDetail.avis" class="p-3 rounded-3 border" style="background: rgba(6, 13, 26, 0.6); border-color: rgba(229, 160, 36, 0.2) !important;">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                  <div>
+                    <strong class="text-white">{{ a.auteur }}</strong>
+                    <span class="text-white-50 small ms-2">{{ a.dateCreation || 'Récemment' }}</span>
+                  </div>
+                  <span class="text-warning fw-bold">{{ genererEtoiles(a.note) }}</span>
+                </div>
+                <p class="text-light small mb-0">{{ a.commentaire }}</p>
+              </div>
+            </div>
+
+            <div *ngIf="!siteDetail.avis || siteDetail.avis.length === 0" class="text-muted small mb-3 fst-italic">
+              Aucun avis pour le moment sur ce site. Soyez le premier à donner votre avis !
+            </div>
+
+            <!-- Formulaire : Laisser un avis -->
+            <div class="p-3 rounded-3 border mt-3" style="background: rgba(13, 26, 48, 0.7); border-color: rgba(229, 160, 36, 0.3) !important;">
+              <h6 class="fw-bold text-warning mb-2">Laisser un avis sur ce site</h6>
+              
+              <div class="alert alert-success small py-2 mb-2" *ngIf="messageSuccesAvis">
+                {{ messageSuccesAvis }}
+              </div>
+
+              <form (ngSubmit)="envoyerAvis()">
+                <div class="mb-2">
+                  <label class="form-label small fw-semibold text-light mb-1">Votre nom</label>
+                  <input type="text" class="form-control form-control-sm rounded-pill" [(ngModel)]="nouvelAvis.auteur" name="auteur" placeholder="Ex: Mame Khoudia, Adja Sarr..." required/>
+                </div>
+                <div class="mb-2">
+                  <label class="form-label small fw-semibold text-light mb-1">Note d'appréciation</label>
+                  <select class="form-select form-select-sm rounded-pill" [(ngModel)]="nouvelAvis.note" name="note">
+                    <option value="5">5 ★★★★★ — Excellent</option>
+                    <option value="4">4 ★★★★☆ — Très bien</option>
+                    <option value="3">3 ★★★☆☆ — Bien</option>
+                    <option value="2">2 ★★☆☆☆ — Moyen</option>
+                    <option value="1">1 ★☆☆☆☆ — Décevant</option>
+                  </select>
+                </div>
+                <div class="mb-3">
+                  <label class="form-label small fw-semibold text-light mb-1">Votre commentaire</label>
+                  <textarea class="form-control rounded-3" rows="2" [(ngModel)]="nouvelAvis.commentaire" name="commentaire" placeholder="Partagez votre expérience sur ce patrimoine de Casamance..." required></textarea>
+                </div>
+                <button type="submit" class="btn btn-sm btn-kasa-gold rounded-pill px-4">
+                  Envoyer mon avis
+                </button>
+              </form>
+            </div>
           </div>
         </div>
         <div class="modal-footer border-0 pt-0">

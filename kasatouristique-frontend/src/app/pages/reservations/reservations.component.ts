@@ -182,9 +182,33 @@ export class ReservationsComponent implements OnInit {
     window.print();
   }
 
+  reservationPourAvis: ReservationDetaillee | null = null;
+  avisReservation = {
+    note: 5,
+    commentaire: ''
+  };
+
+  ouvrirFormAvis(r: ReservationDetaillee): void {
+    this.reservationPourAvis = r;
+    this.avisReservation = { note: 5, commentaire: '' };
+  }
+
+  fermerFormAvis(): void {
+    this.reservationPourAvis = null;
+  }
+
+  validerAvisReservation(): void {
+    if (!this.reservationPourAvis || !this.avisReservation.commentaire) return;
+    this.messageAvis = `Merci ${this.reservationPourAvis.nomReservant} ! Votre note de ${this.avisReservation.note}/5 et votre avis sur "${this.reservationPourAvis.siteNom}" ont été enregistrés avec succès.`;
+    this.reservationPourAvis = null;
+    setTimeout(() => this.messageAvis = '', 6000);
+  }
+
   soumettreAvis(id: number): void {
-    this.messageAvis = 'Merci ! Votre note et votre avis sur la visite ont bien été enregistrés.';
-    setTimeout(() => this.messageAvis = '', 5000);
+    const res = this.reservations.find(r => r.id === id);
+    if (res) {
+      this.ouvrirFormAvis(res);
+    }
   }
 
   annuler(id: number): void {

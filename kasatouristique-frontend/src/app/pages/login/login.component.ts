@@ -97,8 +97,8 @@ export class LoginComponent {
           role: (res?.role as UserRole) || role
         };
         this.authService.login(session);
-        this.message = `Connexion réussie en tant que ${session.role} ! Redirection en cours...`;
-        setTimeout(() => this.router.navigate(['/catalogue']), 800);
+        this.message = `Connexion réussie en tant que ${session.role} ! Redirection vers l'accueil...`;
+        setTimeout(() => this.router.navigate(['/']), 600);
       },
       error: () => {
         // Mode démonstration / secours soutenance
@@ -108,8 +108,8 @@ export class LoginComponent {
           role: role
         };
         this.authService.login(session);
-        this.message = `Connexion réussie en tant que ${session.role} ! Redirection en cours...`;
-        setTimeout(() => this.router.navigate(['/catalogue']), 800);
+        this.message = `Connexion réussie en tant que ${session.role} ! Redirection vers l'accueil...`;
+        setTimeout(() => this.router.navigate(['/']), 600);
       }
     });
   }

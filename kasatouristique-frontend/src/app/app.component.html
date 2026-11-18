@@ -27,33 +27,25 @@
             <a class="nav-link" routerLink="/visites" routerLinkActive="active">Visites</a>
           </li>
 
-          <!-- BOUTONS D'ACTIONS SPÉCIFIQUES SELON LE RÔLE DE L'ACTEUR -->
-          
-          <!-- 1. Conservateur du patrimoine -->
-          <li class="nav-item" *ngIf="authService.estConservateur()">
-            <button type="button" class="btn btn-sm btn-outline-gold rounded-pill px-3 ms-xl-1" (click)="ouvrirAjoutSite()">
-              + Inscrire un site
-            </button>
-          </li>
-
-          <!-- 2. Opérateur touristique -->
+          <!-- LIENS RÔLES EXACTEMENT IDENTIQUES AU PORTAIL WEB PATRIMOINE-ZIGUINCHOR -->
           <li class="nav-item" *ngIf="authService.estOperateur()">
-            <button type="button" class="btn btn-sm btn-outline-gold rounded-pill px-3 ms-xl-1" (click)="ouvrirCreationCircuit()">
-              + Créer un circuit
-            </button>
+            <a class="nav-link" routerLink="/circuits" routerLinkActive="active">Mes circuits</a>
           </li>
-
-          <!-- 3. Guide certifié : Scanner QR Code -->
           <li class="nav-item" *ngIf="authService.estGuide()">
-            <button type="button" class="btn btn-sm btn-info text-dark fw-bold rounded-pill px-3 ms-xl-1" (click)="ouvrirScannerGuide()">
-              📷 Scanner QR Code
-            </button>
+            <a class="nav-link" routerLink="/visites" routerLinkActive="active">Mon agenda</a>
           </li>
-
-          <!-- 4. Administrateur communal -->
+          <li class="nav-item" *ngIf="authService.estGuide()">
+            <a class="nav-link" href="javascript:void(0)" (click)="ouvrirScannerGuide()">Avis &amp; Scanner</a>
+          </li>
+          <li class="nav-item" *ngIf="authService.aRole(['VISITEUR'])">
+            <a class="nav-link" routerLink="/reservations" routerLinkActive="active">Mes réservations</a>
+          </li>
           <li class="nav-item" *ngIf="authService.estAdmin()">
-            <button type="button" class="btn btn-sm btn-warning text-dark fw-bold rounded-pill px-3 ms-xl-1" (click)="ouvrirSupervisionAdmin()">
-              📊 Supervision Admin
+            <a class="nav-link fw-semibold text-warning" href="javascript:void(0)" (click)="ouvrirSupervisionAdmin()">Administration</a>
+          </li>
+          <li class="nav-item" *ngIf="authService.estConservateur()">
+            <button type="button" class="btn btn-sm btn-outline-light ms-xl-2 px-3 rounded-pill" (click)="ouvrirAjoutSite()">
+              + Ajouter un site
             </button>
           </li>
 
