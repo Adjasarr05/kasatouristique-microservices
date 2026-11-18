@@ -55,33 +55,38 @@
             </div>
           </div>
 
-          <!-- Affichage du QR Code SVG Officiel (100% hors ligne) -->
-          <div class="text-center p-3 rounded-3 bg-light border mb-2 position-relative" style="cursor: pointer;" (click)="ouvrirBillet(r)">
-            <div class="d-inline-block p-2 rounded-3 bg-white shadow-sm">
-              <img [src]="r.urlQrCode"
-                   alt="Code QR officiel"
-                   class="img-fluid"
-                   style="width: 140px; height: 140px; display: block;"/>
+          <!-- Affichage du QR Code SVG Officiel (Identique au portail web) -->
+          <div class="text-center p-3 rounded-3 bg-light border mb-2 position-relative">
+            <a [routerLink]="['/reservations/billet', r.qrCodeHash]" title="Cliquez pour afficher le billet officiel et le site réservé">
+              <div class="d-inline-block p-2 rounded-3 bg-white shadow-sm">
+                <img [src]="r.urlQrCode"
+                     alt="Code QR officiel"
+                     class="img-fluid"
+                     style="width: 140px; height: 140px; display: block;"/>
+              </div>
+            </a>
+            <div class="fw-bold text-success small mt-2 font-monospace">{{ r.qrCodeHash }}</div>
+            <p class="text-muted mb-2" style="font-size: .76rem;">
+              📱 Scannez pour afficher : <strong>{{ r.siteNom }}</strong>, Date, Guide &amp; Places
+            </p>
+            <div class="d-flex flex-column gap-2 mt-2">
+              <a [routerLink]="['/reservations/billet', r.qrCodeHash]" class="btn btn-sm btn-success rounded-pill px-3">
+                Voir le billet &amp; le site réservé
+              </a>
+              <button type="button" class="btn btn-sm btn-outline-gold rounded-pill px-3" (click)="ouvrirBillet(r)">
+                🔍 Scanner &amp; Vérifier en direct
+              </button>
             </div>
-            <div class="fw-bold text-warning small mt-2 font-monospace">{{ r.qrCodeHash }}</div>
-            <button type="button" class="btn btn-sm btn-outline-gold rounded-pill px-3 mt-2">
-              🔍 Scanner &amp; Vérifier ce billet
-            </button>
           </div>
         </div>
 
         <div class="px-4 py-3 bg-light border-top text-center d-grid gap-2">
-          <button type="button" class="btn btn-kasa-gold btn-sm rounded-pill px-3 w-100" (click)="ouvrirBillet(r)">
-            🎟️ Voir le Billet Officiel
+          <button type="button" class="btn btn-outline-success btn-sm rounded-pill px-3 w-100" (click)="soumettreAvis(r.id)">
+            ★ Noter et commenter ma visite
           </button>
-          <div class="d-flex gap-2">
-            <button type="button" class="btn btn-outline-success btn-sm rounded-pill px-2 flex-grow-1" (click)="soumettreAvis(r.id)">
-              ★ Noter la visite
-            </button>
-            <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-2" (click)="annuler(r.id)">
-              Annuler
-            </button>
-          </div>
+          <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-3" (click)="annuler(r.id)">
+            Annuler la réservation
+          </button>
         </div>
       </div>
     </div>

@@ -41,7 +41,7 @@
             <a class="nav-link" routerLink="/reservations" routerLinkActive="active">Mes réservations</a>
           </li>
           <li class="nav-item" *ngIf="authService.estAdmin()">
-            <a class="nav-link fw-semibold text-warning" href="javascript:void(0)" (click)="ouvrirSupervisionAdmin()">Administration</a>
+            <a class="nav-link fw-semibold text-warning" routerLink="/admin" routerLinkActive="active">Administration</a>
           </li>
           <li class="nav-item" *ngIf="authService.estConservateur()">
             <button type="button" class="btn btn-sm btn-outline-light ms-xl-2 px-3 rounded-pill" (click)="ouvrirAjoutSite()">
@@ -118,8 +118,8 @@
               </li>
 
               <li *ngIf="authService.estAdmin()">
-                <a class="dropdown-item py-2 d-flex align-items-center text-warning" href="javascript:void(0)" (click)="ouvrirSupervisionAdmin()">
-                  📊 Console de supervision
+                <a class="dropdown-item py-2 d-flex align-items-center text-warning fw-semibold" routerLink="/admin">
+                  Administration
                 </a>
               </li>
 
