@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../services/api.service';
+import { AuthService } from '../../services/auth.service';
 
 export interface ReservationDetaillee {
   id: number;
@@ -36,9 +37,19 @@ export class ReservationsComponent implements OnInit {
   scanEnCours = false;
   messageAvis = '';
 
-  constructor(private api: ApiService) {}
+  constructor(private api: ApiService, public authService: AuthService, private router: Router) {}
 
   ngOnInit(): void {
+    // SEUL LE VISITEUR A ACCÈS AUX RÉSERVATIONS ET BILLETS QR CODE
+    const user = this.authService.currentUserValue;
+    if (user && user.role === 'OPERATEUR_TOURISTIQUE') {
+      this.router.navigate(['/circuits/mes-circuits']);
+      return;
+    }
+    if (user && user.role === 'GUIDE') {
+      this.router.navigate(['/visites']);
+      return;
+    }
     const reservationsInitiales: ReservationDetaillee[] = [
       {
         id: 101,
@@ -55,7 +66,7 @@ export class ReservationsComponent implements OnInit {
         montant: 12000,
         dateReservation: '18/11/2026 à 12:14',
         qrCodeHash: 'ZIG-2026-WVGT',
-        urlQrCode: `https://api.qrserver.com/v1/create-qr-code/?size=250x250&margin=8&data=${encodeURIComponent('KASATOURISTIQUE - BILLET OFFICIEL\nRéf : ZIG-2026-WVGT\nSite réservé : Mémorial-Musée du Bateau Le Joola\nLieu : Escale - Port de Ziguinchor\nDate visite : 20/11/2026 à 09:30\nGuide : Ibrahima Sané\nCircuit : Cité Historique de Ziguinchor & Mémorial Le Joola\nRéservé par : Visiteur Test (+221 78 456 78 90)\nPlaces : 1 place(s)\nMontant : 12 000 FCFA (Wave)\nStatut : CONFIRME')}`,
+        urlQrCode: '',
         contenuQrCode: `KASATOURISTIQUE - BILLET OFFICIEL\nRéf : ZIG-2026-WVGT\nSite réservé : Mémorial-Musée du Bateau Le Joola\nLieu : Escale - Port de Ziguinchor\nDate visite : 20/11/2026 à 09:30\nGuide : Ibrahima Sané\nCircuit : Cité Historique de Ziguinchor & Mémorial Le Joola\nRéservé par : Visiteur Test (+221 78 456 78 90)\nPlaces : 1 place(s)\nMontant : 12 000 FCFA (Wave)\nStatut : CONFIRME`,
         composte: false
       },
@@ -74,7 +85,7 @@ export class ReservationsComponent implements OnInit {
         montant: 12000,
         dateReservation: '18/11/2026 à 14:13',
         qrCodeHash: 'ZIG-2026-4FFF',
-        urlQrCode: `https://api.qrserver.com/v1/create-qr-code/?size=250x250&margin=8&data=${encodeURIComponent('KASATOURISTIQUE - BILLET OFFICIEL\nRéf : ZIG-2026-4FFF\nSite réservé : Mémorial-Musée du Bateau Le Joola\nLieu : Escale - Port de Ziguinchor\nDate visite : 20/11/2026 à 09:30\nGuide : Ibrahima Sané\nCircuit : Cité Historique de Ziguinchor & Mémorial Le Joola\nRéservé par : Visiteur Test (+221 78 456 78 90)\nPlaces : 1 place(s)\nMontant : 12 000 FCFA (Wave)\nStatut : CONFIRME')}`,
+        urlQrCode: '',
         contenuQrCode: `KASATOURISTIQUE - BILLET OFFICIEL\nRéf : ZIG-2026-4FFF\nSite réservé : Mémorial-Musée du Bateau Le Joola\nLieu : Escale - Port de Ziguinchor\nDate visite : 20/11/2026 à 09:30\nGuide : Ibrahima Sané\nCircuit : Cité Historique de Ziguinchor & Mémorial Le Joola\nRéservé par : Visiteur Test (+221 78 456 78 90)\nPlaces : 1 place(s)\nMontant : 12 000 FCFA (Wave)\nStatut : CONFIRME`,
         composte: false
       },
@@ -93,7 +104,7 @@ export class ReservationsComponent implements OnInit {
         montant: 10000,
         dateReservation: '16/11/2026 à 14:20',
         qrCodeHash: 'ZIG-2026-7841',
-        urlQrCode: `https://api.qrserver.com/v1/create-qr-code/?size=250x250&margin=8&data=${encodeURIComponent('KASATOURISTIQUE - BILLET OFFICIEL\nRéf: ZIG-2026-7841\nSite: Mémorial-Musée du Bateau Le Joola\nDate: 18/11/2026 à 09:30\nTitulaire: Aminata Sonko\nPlaces: 2 place(s)\nGuide: Ibrahima Sané\nPaiement: Wave Sénégal (10 000 FCFA)\nStatut: VALIDE - ACCÈS AUTORISÉ')}`,
+        urlQrCode: '',
         contenuQrCode: `KASATOURISTIQUE - BILLET OFFICIEL\nRéf: ZIG-2026-7841\nSite: Mémorial-Musée du Bateau Le Joola\nDate: 18/11/2026 à 09:30\nTitulaire: Aminata Sonko\nPlaces: 2 place(s)\nGuide: Ibrahima Sané\nPaiement: Wave Sénégal (10 000 FCFA)\nStatut: VALIDE - ACCÈS AUTORISÉ`,
         composte: false
       },
@@ -112,7 +123,7 @@ export class ReservationsComponent implements OnInit {
         montant: 8000,
         dateReservation: '16/11/2026 à 16:45',
         qrCodeHash: 'ZIG-2026-9214',
-        urlQrCode: `https://api.qrserver.com/v1/create-qr-code/?size=250x250&margin=8&data=${encodeURIComponent('KASATOURISTIQUE - BILLET OFFICIEL\nRéf: ZIG-2026-9214\nSite: Cases à Impluvium Traditionnelles d\'Enampore\nDate: 20/11/2026 à 08:30\nTitulaire: Mamadou Diatta\nPlaces: 1 place(s)\nGuide: Fatou Diémé\nPaiement: Orange Money (8 000 FCFA)\nStatut: VALIDE - ACCÈS AUTORISÉ')}`,
+        urlQrCode: '',
         contenuQrCode: `KASATOURISTIQUE - BILLET OFFICIEL\nRéf: ZIG-2026-9214\nSite: Cases à Impluvium Traditionnelles d\'Enampore\nDate: 20/11/2026 à 08:30\nTitulaire: Mamadou Diatta\nPlaces: 1 place(s)\nGuide: Fatou Diémé\nPaiement: Orange Money (8 000 FCFA)\nStatut: VALIDE - ACCÈS AUTORISÉ`,
         composte: false
       }
@@ -144,11 +155,9 @@ export class ReservationsComponent implements OnInit {
       this.reservations = reservationsInitiales;
     }
 
-    // Assurer que chaque réservation a bien son URL QR code valide
+    // Génération 100% hors-ligne et locale de chaque code QR SVG (aucun serveur externe nécessaire)
     for (const r of this.reservations) {
-      if (!r.urlQrCode || r.urlQrCode.startsWith('data:image/svg')) {
-        r.urlQrCode = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&margin=8&data=${encodeURIComponent(r.contenuQrCode || r.qrCodeHash)}`;
-      }
+      r.urlQrCode = this.genererQrSvg(r.qrCodeHash || 'ZIG-2026-7841');
     }
 
     this.api.getReservations().subscribe({
@@ -224,7 +233,7 @@ export class ReservationsComponent implements OnInit {
     `;
 
     const svg = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 ${svgSize} ${svgSize}' width='100%' height='100%' style='background:#ffffff;'>${rects}${centerBadge}</svg>`;
-    return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
+    return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
   }
 
   ouvrirBillet(r: ReservationDetaillee): void {

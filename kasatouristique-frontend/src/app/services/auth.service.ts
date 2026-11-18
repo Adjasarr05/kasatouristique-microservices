@@ -65,6 +65,11 @@ export class AuthService {
     return this.aRole(['GUIDE', 'ADMINISTRATEUR_COMMUNAL', 'SUPER_ADMIN']);
   }
 
+  public estVisiteur(): boolean {
+    const user = this.currentUserValue;
+    return !!user && user.role === 'VISITEUR';
+  }
+
   public login(user: UserSession): void {
     localStorage.setItem('kasa_user', JSON.stringify(user));
     this.userSubject.next(user);
