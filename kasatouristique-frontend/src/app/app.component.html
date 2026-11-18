@@ -27,7 +27,7 @@
             <a class="nav-link" routerLink="/visites" routerLinkActive="active">Visites</a>
           </li>
 
-          <!-- LIENS RÔLES STRICTEMENT RÉSERVÉS SELON LES PROFILS -->
+          <!-- LIENS RÔLES EXACTEMENT IDENTIQUES AU PORTAIL WEB PATRIMOINE-ZIGUINCHOR -->
           <li class="nav-item" *ngIf="authService.estOperateur()">
             <a class="nav-link" routerLink="/circuits/mes-circuits" routerLinkActive="active">Mes circuits</a>
           </li>
@@ -37,7 +37,7 @@
           <li class="nav-item" *ngIf="authService.estGuide()">
             <a class="nav-link" href="javascript:void(0)" (click)="ouvrirScannerGuide()">Avis &amp; Scanner</a>
           </li>
-          <li class="nav-item" *ngIf="authService.estVisiteur()">
+          <li class="nav-item" *ngIf="authService.aRole(['VISITEUR', 'SUPER_ADMIN'])">
             <a class="nav-link" routerLink="/reservations" routerLinkActive="active">Mes réservations</a>
           </li>
           <li class="nav-item" *ngIf="authService.estAdmin()">
@@ -88,8 +88,8 @@
                 <span class="badge bg-warning text-dark fw-bold mt-1" style="font-size: .72rem;">{{ utilisateurConnecte.role }}</span>
               </li>
 
-              <!-- Actions selon les rôles : Seul le visiteur a Mes réservations & Billets -->
-              <li *ngIf="authService.estVisiteur()">
+              <!-- Actions selon les rôles : SEUL LE VISITEUR A MES RÉSERVATIONS & BILLETS -->
+              <li *ngIf="utilisateurConnecte && authService.aRole(['VISITEUR', 'SUPER_ADMIN'])">
                 <a class="dropdown-item py-2 d-flex align-items-center text-white" routerLink="/reservations">
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-ticket-perforated me-2 text-warning" viewBox="0 0 16 16">
                     <path d="M4 4.85v.9h1v-.9H4zm7 0v.9h1v-.9h-1zm-7 1.8v.9h1v-.9H4zm7 0v.9h1v-.9h-1zm-7 1.8v.9h1v-.9H4zm7 0v.9h1v-.9h-1zm-7 1.8v.9h1v-.9H4zm7 0v.9h1v-.9h-1z"/>
@@ -100,8 +100,8 @@
               </li>
 
               <li *ngIf="authService.estOperateur()">
-                <a class="dropdown-item py-2 d-flex align-items-center text-warning" routerLink="/circuits/mes-circuits">
-                  🧭 Mes circuits touristiques
+                <a class="dropdown-item py-2 d-flex align-items-center text-white" routerLink="/circuits/mes-circuits">
+                  🗺️ Mes circuits
                 </a>
               </li>
 
@@ -119,7 +119,7 @@
 
               <li *ngIf="authService.estOperateur()">
                 <a class="dropdown-item py-2 d-flex align-items-center text-warning" href="javascript:void(0)" (click)="ouvrirCreationCircuit()">
-                  🧭 + Créer un circuit touristique
+                  🧭 + Proposer un circuit
                 </a>
               </li>
 

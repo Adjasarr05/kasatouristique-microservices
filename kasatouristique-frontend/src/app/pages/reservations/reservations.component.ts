@@ -1,9 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterModule } from '@angular/router';
+import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ApiService } from '../../services/api.service';
 import { AuthService } from '../../services/auth.service';
+import { QrService } from '../../services/qr.service';
 
 export interface ReservationDetaillee {
   id: number;
@@ -37,19 +38,9 @@ export class ReservationsComponent implements OnInit {
   scanEnCours = false;
   messageAvis = '';
 
-  constructor(private api: ApiService, public authService: AuthService, private router: Router) {}
+  constructor(private api: ApiService, public authService: AuthService, private qrService: QrService) {}
 
   ngOnInit(): void {
-    // SEUL LE VISITEUR A ACCÈS AUX RÉSERVATIONS ET BILLETS QR CODE
-    const user = this.authService.currentUserValue;
-    if (user && user.role === 'OPERATEUR_TOURISTIQUE') {
-      this.router.navigate(['/circuits/mes-circuits']);
-      return;
-    }
-    if (user && user.role === 'GUIDE') {
-      this.router.navigate(['/visites']);
-      return;
-    }
     const reservationsInitiales: ReservationDetaillee[] = [
       {
         id: 101,
@@ -66,7 +57,7 @@ export class ReservationsComponent implements OnInit {
         montant: 12000,
         dateReservation: '18/11/2026 à 12:14',
         qrCodeHash: 'ZIG-2026-WVGT',
-        urlQrCode: '',
+        urlQrCode: this.qrService.genererQrSvgDataUri('ZIG-2026-WVGT'),
         contenuQrCode: `KASATOURISTIQUE - BILLET OFFICIEL\nRéf : ZIG-2026-WVGT\nSite réservé : Mémorial-Musée du Bateau Le Joola\nLieu : Escale - Port de Ziguinchor\nDate visite : 20/11/2026 à 09:30\nGuide : Ibrahima Sané\nCircuit : Cité Historique de Ziguinchor & Mémorial Le Joola\nRéservé par : Visiteur Test (+221 78 456 78 90)\nPlaces : 1 place(s)\nMontant : 12 000 FCFA (Wave)\nStatut : CONFIRME`,
         composte: false
       },
@@ -85,7 +76,7 @@ export class ReservationsComponent implements OnInit {
         montant: 12000,
         dateReservation: '18/11/2026 à 14:13',
         qrCodeHash: 'ZIG-2026-4FFF',
-        urlQrCode: '',
+        urlQrCode: this.qrService.genererQrSvgDataUri('ZIG-2026-4FFF'),
         contenuQrCode: `KASATOURISTIQUE - BILLET OFFICIEL\nRéf : ZIG-2026-4FFF\nSite réservé : Mémorial-Musée du Bateau Le Joola\nLieu : Escale - Port de Ziguinchor\nDate visite : 20/11/2026 à 09:30\nGuide : Ibrahima Sané\nCircuit : Cité Historique de Ziguinchor & Mémorial Le Joola\nRéservé par : Visiteur Test (+221 78 456 78 90)\nPlaces : 1 place(s)\nMontant : 12 000 FCFA (Wave)\nStatut : CONFIRME`,
         composte: false
       },
@@ -104,7 +95,7 @@ export class ReservationsComponent implements OnInit {
         montant: 10000,
         dateReservation: '16/11/2026 à 14:20',
         qrCodeHash: 'ZIG-2026-7841',
-        urlQrCode: '',
+        urlQrCode: this.qrService.genererQrSvgDataUri('ZIG-2026-7841'),
         contenuQrCode: `KASATOURISTIQUE - BILLET OFFICIEL\nRéf: ZIG-2026-7841\nSite: Mémorial-Musée du Bateau Le Joola\nDate: 18/11/2026 à 09:30\nTitulaire: Aminata Sonko\nPlaces: 2 place(s)\nGuide: Ibrahima Sané\nPaiement: Wave Sénégal (10 000 FCFA)\nStatut: VALIDE - ACCÈS AUTORISÉ`,
         composte: false
       },
@@ -123,7 +114,7 @@ export class ReservationsComponent implements OnInit {
         montant: 8000,
         dateReservation: '16/11/2026 à 16:45',
         qrCodeHash: 'ZIG-2026-9214',
-        urlQrCode: '',
+        urlQrCode: this.qrService.genererQrSvgDataUri('ZIG-2026-9214'),
         contenuQrCode: `KASATOURISTIQUE - BILLET OFFICIEL\nRéf: ZIG-2026-9214\nSite: Cases à Impluvium Traditionnelles d\'Enampore\nDate: 20/11/2026 à 08:30\nTitulaire: Mamadou Diatta\nPlaces: 1 place(s)\nGuide: Fatou Diémé\nPaiement: Orange Money (8 000 FCFA)\nStatut: VALIDE - ACCÈS AUTORISÉ`,
         composte: false
       }
@@ -134,7 +125,6 @@ export class ReservationsComponent implements OnInit {
       if (stored) {
         const parsed = JSON.parse(stored);
         if (Array.isArray(parsed) && parsed.length > 0) {
-          // Fusionner avec les réservations initiales si besoin
           const hashes = new Set(parsed.map((r: any) => r.qrCodeHash));
           for (const initRes of reservationsInitiales) {
             if (!hashes.has(initRes.qrCodeHash)) {
@@ -155,9 +145,9 @@ export class ReservationsComponent implements OnInit {
       this.reservations = reservationsInitiales;
     }
 
-    // Génération 100% hors-ligne et locale de chaque code QR SVG (aucun serveur externe nécessaire)
+    // Régénérer tous les QR codes 100% hors-ligne en SVG pur (zéro dépendance réseau)
     for (const r of this.reservations) {
-      r.urlQrCode = this.genererQrSvg(r.qrCodeHash || 'ZIG-2026-7841');
+      r.urlQrCode = this.qrService.genererQrSvgDataUri(r.qrCodeHash || 'ZIG-2026-7841');
     }
 
     this.api.getReservations().subscribe({
@@ -233,7 +223,7 @@ export class ReservationsComponent implements OnInit {
     `;
 
     const svg = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 ${svgSize} ${svgSize}' width='100%' height='100%' style='background:#ffffff;'>${rects}${centerBadge}</svg>`;
-    return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+    return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
   }
 
   ouvrirBillet(r: ReservationDetaillee): void {

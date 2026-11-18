@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule } from '@angular/router';
+import { QrService } from '../../services/qr.service';
 
 @Component({
   selector: 'app-billet',
@@ -37,7 +38,7 @@ export class BilletComponent implements OnInit {
 
   urlQrCode: string = '';
 
-  constructor(private route: ActivatedRoute) {}
+  constructor(private route: ActivatedRoute, private qrService: QrService) {}
 
   ngOnInit(): void {
     this.route.params.subscribe(params => {
@@ -103,7 +104,7 @@ export class BilletComponent implements OnInit {
     }
 
     this.billet.contenuQrCode = `KASATOURISTIQUE - BILLET OFFICIEL\nRéf : ${this.billet.qrCodeHash}\nSite réservé : ${this.billet.siteNom}\nLieu : ${this.billet.quartier}\nDate visite : ${this.billet.dateVisite}\nGuide : ${this.billet.guide}\nCircuit : ${this.billet.circuitNom}\nRéservé par : ${this.billet.nomReservant} (${this.billet.telephone})\nPlaces : ${this.billet.nombrePlaces} place(s)\nMontant : ${this.billet.montant} FCFA (${this.billet.modePaiement})\nStatut : ${this.billet.statut}`;
-    this.urlQrCode = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&margin=8&data=${encodeURIComponent(this.billet.contenuQrCode)}`;
+    this.urlQrCode = this.qrService.genererQrSvgDataUri(this.billet.qrCodeHash);
   }
 
   genererQrSvg(texte: string): string {

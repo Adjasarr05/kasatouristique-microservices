@@ -9,11 +9,38 @@
 </section>
 
 <main class="container mb-5">
+  <!-- Message pour l'Opérateur Touristique (qui n'a pas de billets) -->
+  <div class="card rounded-4 border-0 shadow p-4 mb-4 text-center text-white" *ngIf="authService.estOperateur()" style="background: #0d1a30; border: 1px solid rgba(229, 160, 36, 0.4) !important;">
+    <h4 class="fw-bold text-warning mb-2">🧭 Espace réservé aux Visiteurs</h4>
+    <p class="text-white-50 mb-3 mx-auto" style="max-width: 650px;">
+      En tant qu'<strong>Opérateur Touristique</strong>, vous n'achetez pas de billets avec code QR. Votre rôle est de concevoir, gérer et publier les circuits touristiques de Ziguinchor.
+    </p>
+    <div>
+      <a routerLink="/circuits/mes-circuits" class="btn btn-kasa-gold rounded-pill px-4 fw-semibold">
+        Accéder à « Mes circuits »
+      </a>
+    </div>
+  </div>
+
+  <!-- Message pour le Guide (qui scanne mais n'a pas de billets à lui) -->
+  <div class="card rounded-4 border-0 shadow p-4 mb-4 text-center text-white" *ngIf="authService.estGuide()" style="background: #0d1a30; border: 1px solid rgba(94, 230, 164, 0.4) !important;">
+    <h4 class="fw-bold text-info mb-2">📷 Espace Guide Touristique</h4>
+    <p class="text-white-50 mb-3 mx-auto" style="max-width: 650px;">
+      Les billets et codes QR sont détenus par les visiteurs. En tant que guide certifié, votre mission est de contrôler et valider leurs accès via le scanner.
+    </p>
+    <div>
+      <a routerLink="/visites" class="btn btn-outline-info rounded-pill px-4">
+        Consulter mon agenda des visites
+      </a>
+    </div>
+  </div>
+
   <div class="alert alert-success rounded-4" *ngIf="messageAvis">
     {{ messageAvis }}
   </div>
 
-  <div class="row g-4">
+  <!-- BILLETS ET CODES QR : RÉSERVÉS STRICTEMENT AUX VISITEURS ET AU SUPER ADMIN -->
+  <div class="row g-4" *ngIf="!authService.estOperateur() && !authService.estGuide()">
     <div class="col-md-6 col-lg-4" *ngFor="let r of reservations">
       <div class="feature-card h-100 d-flex flex-column">
         <div class="p-4 flex-grow-1">

@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { ApiService } from '../../services/api.service';
 import { AuthService } from '../../services/auth.service';
+import { QrService } from '../../services/qr.service';
 import { Evenement, Reservation } from '../../models/types';
 
 export interface VisiteAffichee {
@@ -91,7 +92,7 @@ export class VisitesComponent implements OnInit {
   nombrePlaces: number = 1;
   messageSucces: string = '';
 
-  constructor(private api: ApiService, private authService: AuthService, private router: Router) {}
+  constructor(private api: ApiService, private authService: AuthService, private router: Router, private qrService: QrService) {}
 
   ngOnInit(): void {
     this.visites = [...this.visitesParDefaut];
@@ -128,7 +129,7 @@ export class VisitesComponent implements OnInit {
     const dateFormatted = dateNow.toLocaleDateString('fr-FR') + ' à ' + dateNow.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
 
     const contenuQr = `KASATOURISTIQUE - BILLET OFFICIEL\nRéf: ${codeGenere}\nSite: ${this.visiteChoisie.siteNom}\nDate: ${this.visiteChoisie.dateHeure}\nTitulaire: ${this.nomClient || 'Visiteur Test'}\nPlaces: ${nombre} place(s)\nGuide: ${this.visiteChoisie.guide}\nPaiement: Wave Sénégal (${montantTotal.toLocaleString('fr-FR')} FCFA)\nStatut: VALIDE - ACCÈS AUTORISÉ`;
-    const urlQr = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&margin=8&data=${encodeURIComponent(contenuQr)}`;
+    const urlQr = this.qrService.genererQrSvgDataUri(codeGenere);
 
     const nouvelleRes: any = {
       id: Date.now(),
