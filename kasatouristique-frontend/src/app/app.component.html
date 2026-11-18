@@ -27,6 +27,36 @@
             <a class="nav-link" routerLink="/visites" routerLinkActive="active">Visites</a>
           </li>
 
+          <!-- BOUTONS D'ACTIONS SPÉCIFIQUES SELON LE RÔLE DE L'ACTEUR -->
+          
+          <!-- 1. Conservateur du patrimoine -->
+          <li class="nav-item" *ngIf="authService.estConservateur()">
+            <button type="button" class="btn btn-sm btn-outline-gold rounded-pill px-3 ms-xl-1" (click)="ouvrirAjoutSite()">
+              + Inscrire un site
+            </button>
+          </li>
+
+          <!-- 2. Opérateur touristique -->
+          <li class="nav-item" *ngIf="authService.estOperateur()">
+            <button type="button" class="btn btn-sm btn-outline-gold rounded-pill px-3 ms-xl-1" (click)="ouvrirCreationCircuit()">
+              + Créer un circuit
+            </button>
+          </li>
+
+          <!-- 3. Guide certifié : Scanner QR Code -->
+          <li class="nav-item" *ngIf="authService.estGuide()">
+            <button type="button" class="btn btn-sm btn-info text-dark fw-bold rounded-pill px-3 ms-xl-1" (click)="ouvrirScannerGuide()">
+              📷 Scanner QR Code
+            </button>
+          </li>
+
+          <!-- 4. Administrateur communal -->
+          <li class="nav-item" *ngIf="authService.estAdmin()">
+            <button type="button" class="btn btn-sm btn-warning text-dark fw-bold rounded-pill px-3 ms-xl-1" (click)="ouvrirSupervisionAdmin()">
+              📊 Supervision Admin
+            </button>
+          </li>
+
           <!-- Menu déroulant de compte utilisateur -->
           <li class="nav-item dropdown ms-xl-2">
             <button class="btn btn-outline-gold rounded-pill px-3 py-1 shadow-sm d-inline-flex align-items-center dropdown-toggle" type="button" id="userAccountDropdown" data-bs-toggle="dropdown" aria-expanded="false">
@@ -36,14 +66,16 @@
               </svg>
               <span class="small fw-semibold ms-1">{{ utilisateurConnecte ? (utilisateurConnecte.nom || utilisateurConnecte.email) : 'Mon Compte' }}</span>
             </button>
-            <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 mt-2 rounded-3" aria-labelledby="userAccountDropdown">
+
+            <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 mt-2 rounded-3" aria-labelledby="userAccountDropdown" style="min-width: 250px;">
+              <!-- Non connecté -->
               <li *ngIf="!utilisateurConnecte">
                 <a class="dropdown-item py-2 d-flex align-items-center fw-semibold text-warning" routerLink="/login">
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-in-right me-2" viewBox="0 0 16 16">
                     <path fill-rule="evenodd" d="M6 3.5a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v9a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-2a.5.5 0 0 0-1 0v2A1.5 1.5 0 0 0 6.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 14.5 2h-8A1.5 1.5 0 0 0 5 3.5v2a.5.5 0 0 0 1 0z"/>
                     <path fill-rule="evenodd" d="M11.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 0 0-.708.708L10.293 7.5H1.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708z"/>
                   </svg>
-                  Connexion
+                  Connexion aux espaces
                 </a>
               </li>
               <li *ngIf="!utilisateurConnecte">
@@ -56,20 +88,49 @@
                 </a>
               </li>
 
+              <!-- Connecté : Profil & Rôle distinct -->
               <li *ngIf="utilisateurConnecte" class="px-3 py-2 small border-bottom rounded-top" style="background: rgba(229, 160, 36, 0.12);">
-                <div class="text-white-50 small">Connecté en tant que :</div>
-                <div class="fw-bold text-white text-truncate" style="max-width: 220px;">{{ utilisateurConnecte.email }}</div>
-                <div *ngIf="utilisateurConnecte.role" class="badge bg-warning-subtle text-warning mt-1">{{ utilisateurConnecte.role }}</div>
+                <div class="text-white-50 small">Acteur connecté :</div>
+                <div class="fw-bold text-white text-truncate">{{ utilisateurConnecte.nom }}</div>
+                <div class="text-warning small text-truncate">{{ utilisateurConnecte.email }}</div>
+                <span class="badge bg-warning text-dark fw-bold mt-1" style="font-size: .72rem;">{{ utilisateurConnecte.role }}</span>
               </li>
-              <li *ngIf="utilisateurConnecte">
+
+              <!-- Actions selon les rôles -->
+              <li *ngIf="utilisateurConnecte && (authService.aRole(['VISITEUR']) || !authService.estGuide())">
                 <a class="dropdown-item py-2 d-flex align-items-center text-white" routerLink="/reservations">
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-ticket-perforated me-2 text-warning" viewBox="0 0 16 16">
                     <path d="M4 4.85v.9h1v-.9H4zm7 0v.9h1v-.9h-1zm-7 1.8v.9h1v-.9H4zm7 0v.9h1v-.9h-1zm-7 1.8v.9h1v-.9H4zm7 0v.9h1v-.9h-1zm-7 1.8v.9h1v-.9H4zm7 0v.9h1v-.9h-1z"/>
                     <path d="M1.5 3A1.5 1.5 0 0 0 0 4.5V6a.5.5 0 0 0 .5.5 1.5 1.5 0 1 1 0 3 .5.5 0 0 0-.5.5v1.5A1.5 1.5 0 0 0 1.5 13h13a1.5 1.5 0 0 0 1.5-1.5V10a.5.5 0 0 0-.5-.5 1.5 1.5 0 0 1 0-3A.5.5 0 0 0 16 6V4.5A1.5 1.5 0 0 0 14.5 3h-13zM1 4.5a.5.5 0 0 1 .5-.5h13a.5.5 0 0 1 .5.5v1.05a2.5 2.5 0 0 0 0 4.9v1.05a.5.5 0 0 1-.5.5h-13a.5.5 0 0 1-.5-.5v-1.05a2.5 2.5 0 0 0 0-4.9V4.5z"/>
                   </svg>
-                  Mes réservations
+                  Mes réservations &amp; Billets
                 </a>
               </li>
+
+              <li *ngIf="authService.estGuide()">
+                <a class="dropdown-item py-2 d-flex align-items-center text-info" href="javascript:void(0)" (click)="ouvrirScannerGuide()">
+                  📷 Scanner / Valider un billet
+                </a>
+              </li>
+
+              <li *ngIf="authService.estConservateur()">
+                <a class="dropdown-item py-2 d-flex align-items-center text-success" href="javascript:void(0)" (click)="ouvrirAjoutSite()">
+                  🏛️ + Inscrire un site patrimonial
+                </a>
+              </li>
+
+              <li *ngIf="authService.estOperateur()">
+                <a class="dropdown-item py-2 d-flex align-items-center text-warning" href="javascript:void(0)" (click)="ouvrirCreationCircuit()">
+                  🧭 + Créer un circuit touristique
+                </a>
+              </li>
+
+              <li *ngIf="authService.estAdmin()">
+                <a class="dropdown-item py-2 d-flex align-items-center text-warning" href="javascript:void(0)" (click)="ouvrirSupervisionAdmin()">
+                  📊 Console de supervision
+                </a>
+              </li>
+
               <li *ngIf="utilisateurConnecte"><hr class="dropdown-divider my-1"></li>
               <li *ngIf="utilisateurConnecte">
                 <a class="dropdown-item py-2 text-danger d-flex align-items-center" href="javascript:void(0)" (click)="deconnexion()">
@@ -96,6 +157,229 @@
 <main class="flex-grow-1">
   <router-outlet></router-outlet>
 </main>
+
+<!-- ========================================================
+     MODALES DÉDIÉES AUX RÔLES DES ACTEURS
+     ======================================================== -->
+
+<!-- 1. MODALE CONSERVATEUR : Inscrire un nouveau site -->
+<div class="modal fade show d-block" *ngIf="modalAjoutSite" style="background: rgba(0,0,0,0.75); backdrop-filter: blur(8px);">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content text-white rounded-4 border-0 shadow-lg" style="background: #0d1a30; border: 1px solid rgba(229, 160, 36, 0.4) !important;">
+      <div class="modal-header border-bottom border-light border-opacity-10 pb-2">
+        <h5 class="modal-title fw-bold text-white">🏛️ Espace Conservateur : Inscrire un Site</h5>
+        <button type="button" class="btn-close btn-close-white" (click)="modalAjoutSite = false"></button>
+      </div>
+      <div class="modal-body py-3">
+        <div class="alert alert-success small rounded-3" *ngIf="messageSuccesSite">{{ messageSuccesSite }}</div>
+        <form (ngSubmit)="enregistrerNouveauSite()">
+          <div class="mb-3">
+            <label class="form-label small fw-semibold text-light">Nom du site patrimonial</label>
+            <input type="text" class="form-control rounded-pill" [(ngModel)]="nouveauSite.nom" name="nom" placeholder="Ex : Île d'Égueye, Cases de Mlomp..." required/>
+          </div>
+          <div class="row g-2 mb-3">
+            <div class="col-6">
+              <label class="form-label small fw-semibold text-light">Département</label>
+              <select class="form-select rounded-pill" [(ngModel)]="nouveauSite.departement" name="departement">
+                <option value="Ziguinchor">Ziguinchor</option>
+                <option value="Oussouye">Oussouye</option>
+                <option value="Bignona">Bignona</option>
+              </select>
+            </div>
+            <div class="col-6">
+              <label class="form-label small fw-semibold text-light">Catégorie</label>
+              <select class="form-select rounded-pill" [(ngModel)]="nouveauSite.categorie" name="categorie">
+                <option value="Culturel">Culturel</option>
+                <option value="Naturel">Naturel</option>
+                <option value="Religieux">Religieux</option>
+                <option value="Historique">Historique</option>
+              </select>
+            </div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label small fw-semibold text-light">Description et valeur patrimoniale</label>
+            <textarea class="form-control rounded-3" rows="3" [(ngModel)]="nouveauSite.description" name="description" placeholder="Histoire, traditions, importance culturelle pour la Casamance..."></textarea>
+          </div>
+          <div class="d-flex justify-content-end gap-2 pt-2 border-top border-light border-opacity-10">
+            <button type="button" class="btn btn-secondary rounded-pill px-3" (click)="modalAjoutSite = false">Annuler</button>
+            <button type="submit" class="btn btn-kasa-gold rounded-pill px-4">Enregistrer dans ms-patrimoine</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 2. MODALE OPÉRATEUR : Créer un circuit touristique -->
+<div class="modal fade show d-block" *ngIf="modalCreationCircuit" style="background: rgba(0,0,0,0.75); backdrop-filter: blur(8px);">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content text-white rounded-4 border-0 shadow-lg" style="background: #0d1a30; border: 1px solid rgba(229, 160, 36, 0.4) !important;">
+      <div class="modal-header border-bottom border-light border-opacity-10 pb-2">
+        <h5 class="modal-title fw-bold text-white">🧭 Espace Opérateur : Créer un Circuit</h5>
+        <button type="button" class="btn-close btn-close-white" (click)="modalCreationCircuit = false"></button>
+      </div>
+      <div class="modal-body py-3">
+        <div class="alert alert-success small rounded-3" *ngIf="messageSuccesCircuit">{{ messageSuccesCircuit }}</div>
+        <form (ngSubmit)="enregistrerNouveauCircuit()">
+          <div class="mb-3">
+            <label class="form-label small fw-semibold text-light">Intitulé du circuit</label>
+            <input type="text" class="form-control rounded-pill" [(ngModel)]="nouveauCircuit.nom" name="nom" placeholder="Ex : Balade dans les Bolongs de Kafountine" required/>
+          </div>
+          <div class="row g-2 mb-3">
+            <div class="col-6">
+              <label class="form-label small fw-semibold text-light">Tarif par personne (FCFA)</label>
+              <input type="number" class="form-control rounded-pill" [(ngModel)]="nouveauCircuit.prix" name="prix" required/>
+            </div>
+            <div class="col-6">
+              <label class="form-label small fw-semibold text-light">Durée estimée (Heures)</label>
+              <input type="number" class="form-control rounded-pill" [(ngModel)]="nouveauCircuit.dureeHeures" name="duree" required/>
+            </div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label small fw-semibold text-light">Description de l'itinéraire &amp; Étapes</label>
+            <textarea class="form-control rounded-3" rows="3" [(ngModel)]="nouveauCircuit.description" name="description" placeholder="Détails du parcours, escales prévues, transport pirogue/véhicule..."></textarea>
+          </div>
+          <div class="d-flex justify-content-end gap-2 pt-2 border-top border-light border-opacity-10">
+            <button type="button" class="btn btn-secondary rounded-pill px-3" (click)="modalCreationCircuit = false">Annuler</button>
+            <button type="submit" class="btn btn-kasa-gold rounded-pill px-4">Publier dans ms-circuit</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 3. MODALE GUIDE : Scanner & Valider les Billets QR Code -->
+<div class="modal fade show d-block" *ngIf="modalScannerGuide" style="background: rgba(0,0,0,0.75); backdrop-filter: blur(8px);">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content text-white rounded-4 border-0 shadow-lg" style="background: #0d1a30; border: 1px solid rgba(229, 160, 36, 0.4) !important;">
+      <div class="modal-header border-bottom border-light border-opacity-10 pb-2">
+        <h5 class="modal-title fw-bold text-white">📷 Espace Guide : Contrôle &amp; Validation Billet</h5>
+        <button type="button" class="btn-close btn-close-white" (click)="modalScannerGuide = false"></button>
+      </div>
+      <div class="modal-body py-3">
+        <p class="small text-muted mb-3">Scannez le code QR présenté par le touriste ou saisissez la référence du billet :</p>
+        
+        <div class="input-group mb-3">
+          <input type="text" class="form-control rounded-start-pill font-monospace" [(ngModel)]="codeScanInput" placeholder="Ex: ZIG-2026-7841"/>
+          <button class="btn btn-kasa-gold rounded-end-pill px-3" type="button" (click)="validerScanCode()">
+            Contrôler le billet
+          </button>
+        </div>
+
+        <div *ngIf="resultatScan" class="p-3 rounded-4 border" style="background: rgba(6, 13, 26, 0.7); border-color: rgba(94, 230, 164, 0.4) !important;">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <span class="badge bg-success rounded-pill px-3 py-1 fw-bold">✓ {{ resultatScan.statut }}</span>
+            <span class="font-monospace text-warning small fw-bold">{{ resultatScan.reference }}</span>
+          </div>
+          <div class="small d-grid gap-1">
+            <div>👤 <strong>Touriste :</strong> {{ resultatScan.touriste }} ({{ resultatScan.places }} place(s))</div>
+            <div>🏛️ <strong>Site réservé :</strong> {{ resultatScan.site }}</div>
+            <div>📅 <strong>Date prévue :</strong> {{ resultatScan.date }}</div>
+            <div>🧭 <strong>Guide assigné :</strong> {{ resultatScan.guide }}</div>
+            <div>💳 <strong>Règlement :</strong> <span class="text-success">{{ resultatScan.paiement }}</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer border-top border-light border-opacity-10 pt-2">
+        <button type="button" class="btn btn-secondary rounded-pill px-3" (click)="modalScannerGuide = false">Fermer</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 4. MODALE ADMIN : Supervision Communale & Microservices -->
+<div class="modal fade show d-block" *ngIf="modalSupervisionAdmin" style="background: rgba(0,0,0,0.75); backdrop-filter: blur(8px);">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content text-white rounded-4 border-0 shadow-lg" style="background: #0d1a30; border: 1px solid rgba(229, 160, 36, 0.4) !important;">
+      <div class="modal-header border-bottom border-light border-opacity-10 pb-2">
+        <h5 class="modal-title fw-bold text-white">📊 Console de Supervision Communale — Ziguinchor</h5>
+        <button type="button" class="btn-close btn-close-white" (click)="modalSupervisionAdmin = false"></button>
+      </div>
+      <div class="modal-body py-4">
+        
+        <!-- Cartes de statistiques -->
+        <div class="row g-3 mb-4">
+          <div class="col-sm-3 col-6">
+            <div class="p-3 rounded-3 text-center border" style="background: rgba(6, 13, 26, 0.6); border-color: rgba(229, 160, 36, 0.3) !important;">
+              <div class="fs-4 fw-bold text-warning">15</div>
+              <div class="small text-white-50">Sites classés</div>
+            </div>
+          </div>
+          <div class="col-sm-3 col-6">
+            <div class="p-3 rounded-3 text-center border" style="background: rgba(6, 13, 26, 0.6); border-color: rgba(229, 160, 36, 0.3) !important;">
+              <div class="fs-4 fw-bold text-success">5</div>
+              <div class="small text-white-50">Circuits actifs</div>
+            </div>
+          </div>
+          <div class="col-sm-3 col-6">
+            <div class="p-3 rounded-3 text-center border" style="background: rgba(6, 13, 26, 0.6); border-color: rgba(229, 160, 36, 0.3) !important;">
+              <div class="fs-4 fw-bold text-info">28</div>
+              <div class="small text-white-50">Réservations</div>
+            </div>
+          </div>
+          <div class="col-sm-3 col-6">
+            <div class="p-3 rounded-3 text-center border" style="background: rgba(6, 13, 26, 0.6); border-color: rgba(229, 160, 36, 0.3) !important;">
+              <div class="fs-4 fw-bold text-white">280 000</div>
+              <div class="small text-white-50">Recettes FCFA</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- État des 7 microservices -->
+        <h6 class="fw-bold text-warning mb-2">État des 7 microservices Spring Boot &amp; Docker :</h6>
+        <div class="row g-2 small">
+          <div class="col-md-6">
+            <div class="p-2 rounded-2 d-flex justify-content-between align-items-center border" style="background: rgba(25, 135, 84, 0.15); border-color: rgba(94, 230, 164, 0.3) !important;">
+              <span>ms-patrimoine (Port 8081)</span>
+              <span class="badge bg-success">EN LIGNE</span>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="p-2 rounded-2 d-flex justify-content-between align-items-center border" style="background: rgba(25, 135, 84, 0.15); border-color: rgba(94, 230, 164, 0.3) !important;">
+              <span>ms-circuit (Port 8082)</span>
+              <span class="badge bg-success">EN LIGNE</span>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="p-2 rounded-2 d-flex justify-content-between align-items-center border" style="background: rgba(25, 135, 84, 0.15); border-color: rgba(94, 230, 164, 0.3) !important;">
+              <span>ms-evenement (Port 8083)</span>
+              <span class="badge bg-success">EN LIGNE</span>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="p-2 rounded-2 d-flex justify-content-between align-items-center border" style="background: rgba(25, 135, 84, 0.15); border-color: rgba(94, 230, 164, 0.3) !important;">
+              <span>ms-reservation (Port 8084)</span>
+              <span class="badge bg-success">EN LIGNE</span>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="p-2 rounded-2 d-flex justify-content-between align-items-center border" style="background: rgba(25, 135, 84, 0.15); border-color: rgba(94, 230, 164, 0.3) !important;">
+              <span>ms-utilisateur (Port 8085)</span>
+              <span class="badge bg-success">EN LIGNE</span>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <div class="p-2 rounded-2 d-flex justify-content-between align-items-center border" style="background: rgba(25, 135, 84, 0.15); border-color: rgba(94, 230, 164, 0.3) !important;">
+              <span>ms-paiement (Port 8086)</span>
+              <span class="badge bg-success">EN LIGNE</span>
+            </div>
+          </div>
+          <div class="col-md-12">
+            <div class="p-2 rounded-2 d-flex justify-content-between align-items-center border" style="background: rgba(25, 135, 84, 0.15); border-color: rgba(94, 230, 164, 0.3) !important;">
+              <span>ms-notification (Port 8087)</span>
+              <span class="badge bg-success">EN LIGNE</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+      <div class="modal-footer border-top border-light border-opacity-10 pt-2">
+        <button type="button" class="btn btn-kasa-gold rounded-pill px-4" (click)="modalSupervisionAdmin = false">Fermer la console</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <footer class="site-footer pt-5 pb-4 mt-5">
   <div class="container">

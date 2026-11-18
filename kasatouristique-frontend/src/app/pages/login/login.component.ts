@@ -3,7 +3,16 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { ApiService } from '../../services/api.service';
-import { AuthService, UserSession } from '../../services/auth.service';
+import { AuthService, UserRole, UserSession } from '../../services/auth.service';
+
+interface CompteTest {
+  titre: string;
+  email: string;
+  nom: string;
+  role: UserRole;
+  description: string;
+  badgeCouleur: string;
+}
 
 @Component({
   selector: 'app-login',
@@ -17,38 +26,89 @@ export class LoginComponent {
   message: string = '';
   erreur: string = '';
 
+  comptesTest: CompteTest[] = [
+    {
+      titre: 'Visiteur / Touriste',
+      email: 'visiteur@ziguinchor.sn',
+      nom: 'Mame Khoudia (Visiteur)',
+      role: 'VISITEUR',
+      description: 'Découvrir le catalogue, réserver des visites et voir ses billets avec QR Code',
+      badgeCouleur: 'bg-primary'
+    },
+    {
+      titre: 'Guide Local Certifié',
+      email: 'guide@ziguinchor.sn',
+      nom: 'Ibrahima Sané (Guide)',
+      role: 'GUIDE',
+      description: 'Accéder à son agenda et scanner / valider les billets QR Code des visiteurs',
+      badgeCouleur: 'bg-info text-dark'
+    },
+    {
+      titre: 'Conservateur du Patrimoine',
+      email: 'conservateur@ziguinchor.sn',
+      nom: 'Fatou Diémé (Conservatrice)',
+      role: 'CONSERVATEUR',
+      description: 'Ajouter, enrichir et classifier les sites historiques et culturels',
+      badgeCouleur: 'bg-success'
+    },
+    {
+      titre: 'Opérateur Touristique',
+      email: 'operateur@ziguinchor.sn',
+      nom: 'Adja Sarr (Opérateur)',
+      role: 'OPERATEUR_TOURISTIQUE',
+      description: 'Créer de nouveaux circuits touristiques et gérer les tarifs',
+      badgeCouleur: 'bg-warning text-dark'
+    },
+    {
+      titre: 'Administrateur Communal',
+      email: 'admincommunal@ziguinchor.sn',
+      nom: 'Adama Diop (Admin)',
+      role: 'ADMINISTRATEUR_COMMUNAL',
+      description: 'Supervision globale de Ziguinchor, validation des guides et état des microservices',
+      badgeCouleur: 'bg-danger'
+    }
+  ];
+
   constructor(
     private api: ApiService,
     private authService: AuthService,
     private router: Router
   ) {}
 
+  choisirCompte(c: CompteTest): void {
+    this.email = c.email;
+    this.motDePasse = 'admin123';
+    this.seConnecter();
+  }
+
   seConnecter(): void {
     this.message = '';
     this.erreur = '';
 
-    const nomExtrait = this.determinerNom(this.email);
+    const compteDefini = this.comptesTest.find(c => c.email.toLowerCase() === this.email.toLowerCase());
+    const role: UserRole = compteDefini?.role || this.determinerRole(this.email);
+    const nom = compteDefini?.nom || this.determinerNom(this.email);
 
     this.api.connexion({ email: this.email, motDePasse: this.motDePasse }).subscribe({
       next: (res) => {
         const session: UserSession = {
           email: res?.email || this.email,
-          nom: res?.nom || nomExtrait,
-          role: res?.role || this.determinerRole(this.email)
+          nom: res?.nom || nom,
+          role: (res?.role as UserRole) || role
         };
         this.authService.login(session);
-        this.message = 'Connexion réussie ! Bienvenue sur KasaTouristique.';
+        this.message = `Connexion réussie en tant que ${session.role} ! Redirection en cours...`;
         setTimeout(() => this.router.navigate(['/catalogue']), 800);
       },
       error: () => {
-        // Mode démonstration / secours pour la soutenance
+        // Mode démonstration / secours soutenance
         const session: UserSession = {
           email: this.email,
-          nom: nomExtrait,
-          role: this.determinerRole(this.email)
+          nom: nom,
+          role: role
         };
         this.authService.login(session);
-        this.message = 'Connexion réussie ! Bienvenue sur KasaTouristique.';
+        this.message = `Connexion réussie en tant que ${session.role} ! Redirection en cours...`;
         setTimeout(() => this.router.navigate(['/catalogue']), 800);
       }
     });
@@ -68,11 +128,13 @@ export class LoginComponent {
     }
   }
 
-  private determinerRole(email: string): string {
+  private determinerRole(email: string): UserRole {
     const identifiant = email.split('@')[0].toUpperCase();
-    if (['VISITEUR', 'GUIDE', 'CONSERVATEUR', 'OPERATEUR', 'ADMINCOMMUNAL', 'SUPERADMIN'].includes(identifiant)) {
-      return identifiant;
-    }
+    if (identifiant === 'GUIDE') return 'GUIDE';
+    if (identifiant === 'CONSERVATEUR') return 'CONSERVATEUR';
+    if (identifiant === 'OPERATEUR') return 'OPERATEUR_TOURISTIQUE';
+    if (identifiant === 'ADMINCOMMUNAL') return 'ADMINISTRATEUR_COMMUNAL';
+    if (identifiant === 'SUPERADMIN') return 'SUPER_ADMIN';
     return 'VISITEUR';
   }
 }

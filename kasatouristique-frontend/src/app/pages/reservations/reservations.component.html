@@ -1,10 +1,10 @@
 <section class="page-banner">
   <div class="container d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
     <div>
-      <h1 class="h2 fw-bold mb-1">Mes réservations</h1>
-      <p class="mb-0 text-white-50">Retrouvez vos billets confirmés, les détails de vos réservations et vos QR codes d'accès.</p>
+      <h1 class="h2 fw-bold mb-1">Mes réservations &amp; Billets électroniques</h1>
+      <p class="mb-0 text-white-50">Accédez à vos billets confirmés avec code QR d'accès officiel pour les visites en Casamance.</p>
     </div>
-    <a routerLink="/visites" class="btn btn-gold rounded-pill px-4">+ Réserver une visite</a>
+    <a routerLink="/visites" class="btn btn-gold rounded-pill px-4">+ Réserver une autre visite</a>
   </div>
 </section>
 
@@ -18,18 +18,20 @@
       <div class="feature-card h-100 d-flex flex-column">
         <div class="p-4 flex-grow-1">
           <div class="d-flex justify-content-between align-items-center mb-2">
-            <span class="badge bg-success rounded-pill px-3 py-2">{{ r.statut }}</span>
+            <span class="badge rounded-pill px-3 py-2" [ngClass]="r.composte ? 'bg-success' : 'bg-primary'">
+              {{ r.statut }}
+            </span>
             <span class="badge bg-warning-subtle text-warning rounded-pill px-3 py-2 fw-semibold">
               {{ r.nombrePlaces }} place(s)
             </span>
           </div>
 
-          <h5 class="fw-bold mb-1">{{ r.siteNom }}</h5>
-          <p class="small text-muted mb-3">{{ r.dateVisite }}</p>
+          <h5 class="fw-bold mb-1 text-white">{{ r.siteNom }}</h5>
+          <p class="small text-muted mb-3">📅 {{ r.dateVisite }}</p>
 
           <div class="p-3 rounded-3 bg-light small d-grid gap-1 mb-3">
             <div>
-              👤 <strong>Réservé par :</strong> <span>{{ r.nomReservant }}</span>
+              👤 <strong>Titulaire :</strong> <span>{{ r.nomReservant }}</span>
             </div>
             <div>
               ✉️ <strong>Email :</strong> <span>{{ r.emailReservant }}</span>
@@ -38,7 +40,7 @@
               📞 <strong>Téléphone :</strong> <span>{{ r.telephone }}</span>
             </div>
             <div>
-              🧭 <strong>Guide :</strong> <span>{{ r.guide }}</span>
+              🧭 <strong>Guide :</strong> <span class="text-warning">{{ r.guide }}</span>
             </div>
             <div>
               🗺️ <strong>Circuit :</strong> <span>{{ r.circuitNom }}</span>
@@ -46,35 +48,151 @@
             <div>
               💳 <strong>Paiement :</strong>
               <span>{{ r.modePaiement }}</span> —
-              <strong class="text-success">{{ r.montant | number:'1.0-0' }} FCFA</strong>
+              <strong class="text-warning">{{ r.montant | number:'1.0-0' }} FCFA</strong>
             </div>
             <div class="text-muted">
               🕒 Réservé le <span>{{ r.dateReservation }}</span>
             </div>
           </div>
 
-          <div class="text-center p-3 rounded-3 bg-light border mb-2">
-            <img [src]="r.urlQrCode" alt="QR code du billet" class="img-fluid rounded border p-1 bg-white" style="max-width: 140px;"/>
-            <div class="fw-bold text-success small mt-2">{{ r.qrCodeHash }}</div>
-            <p class="text-muted mb-0" style="font-size: .76rem;">
-              📱 Scannez pour afficher le billet officiel et les détails de visite
-            </p>
+          <!-- Affichage du QR Code SVG Officiel (100% hors ligne) -->
+          <div class="text-center p-3 rounded-3 bg-light border mb-2 position-relative" style="cursor: pointer;" (click)="ouvrirBillet(r)">
+            <div class="d-inline-block p-2 rounded-3 bg-white shadow-sm">
+              <img [src]="r.urlQrCode"
+                   alt="Code QR officiel"
+                   class="img-fluid"
+                   style="width: 140px; height: 140px; display: block;"/>
+            </div>
+            <div class="fw-bold text-warning small mt-2 font-monospace">{{ r.qrCodeHash }}</div>
+            <button type="button" class="btn btn-sm btn-outline-gold rounded-pill px-3 mt-2">
+              🔍 Scanner &amp; Vérifier ce billet
+            </button>
           </div>
         </div>
 
         <div class="px-4 py-3 bg-light border-top text-center d-grid gap-2">
-          <button type="button" class="btn btn-outline-success btn-sm rounded-pill px-3 w-100" (click)="soumettreAvis(r.id)">
-            ★ Noter et commenter ma visite
+          <button type="button" class="btn btn-kasa-gold btn-sm rounded-pill px-3 w-100" (click)="ouvrirBillet(r)">
+            🎟️ Voir le Billet Officiel
           </button>
-          <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-3" (click)="annuler(r.id)">
-            Annuler la réservation
-          </button>
+          <div class="d-flex gap-2">
+            <button type="button" class="btn btn-outline-success btn-sm rounded-pill px-2 flex-grow-1" (click)="soumettreAvis(r.id)">
+              ★ Noter la visite
+            </button>
+            <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-2" (click)="annuler(r.id)">
+              Annuler
+            </button>
+          </div>
         </div>
       </div>
     </div>
 
     <div *ngIf="reservations.length === 0" class="col-12 text-center text-muted py-5">
       Aucune réservation enregistrée pour le moment.
+    </div>
+  </div>
+
+  <!-- Modal Billet Officiel & Scanner QR Code interactif -->
+  <div class="modal fade show d-block" *ngIf="billetSelectionne" style="background: rgba(0,0,0,0.75); backdrop-filter: blur(8px);">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content text-white rounded-4 border-0 shadow-lg" style="background: #0d1a30; border: 1.5px solid rgba(229, 160, 36, 0.45) !important;">
+        
+        <div class="modal-header border-bottom border-light border-opacity-10 pb-3">
+          <div>
+            <div class="d-flex align-items-center gap-2 mb-1">
+              <span class="brand-kasa fw-bold fs-5">Kasa</span><span class="brand-touristique fw-bold fs-5">Touristique</span>
+              <span class="badge bg-warning text-dark fw-bold rounded-pill px-3 py-1">BILLET OFFICIEL ÉLECTRONIQUE</span>
+            </div>
+            <div class="small text-white-50">Réf. d'authentification : <strong>{{ billetSelectionne.qrCodeHash }}</strong></div>
+          </div>
+          <button type="button" class="btn-close btn-close-white" (click)="fermerBillet()"></button>
+        </div>
+
+        <div class="modal-body py-4">
+          <div class="row g-4 align-items-center">
+            
+            <!-- Colonne QR Code & Animation de Scan -->
+            <div class="col-md-5 text-center">
+              <div class="p-3 rounded-4 position-relative d-inline-block shadow" style="background: #ffffff;">
+                <img [src]="billetSelectionne.urlQrCode"
+                     alt="QR code du billet"
+                     style="width: 200px; height: 200px; display: block;"/>
+                
+                <!-- Ligne laser de scan animée -->
+                <div *ngIf="scanEnCours"
+                     class="position-absolute start-0 end-0"
+                     style="height: 3px; background: #e5a024; box-shadow: 0 0 12px #f3bd52; animation: scanAnimation 1s ease-in-out infinite;">
+                </div>
+              </div>
+
+              <div class="mt-3">
+                <span *ngIf="!billetSelectionne.composte" class="badge bg-success-subtle text-success fs-6 px-3 py-2 rounded-pill">
+                  ✓ ACCÈS AUTORISÉ &bull; VALIDE
+                </span>
+                <span *ngIf="billetSelectionne.composte" class="badge bg-warning text-dark fs-6 px-3 py-2 rounded-pill fw-bold">
+                  ✓ ENTRÉE EFFECTUÉE &bull; COMPOSTÉ
+                </span>
+              </div>
+              <p class="small text-muted mt-2 mb-0">Contrôle cryptographique vérifié avec succès</p>
+            </div>
+
+            <!-- Colonne Détails Officiels du Titulaire -->
+            <div class="col-md-7">
+              <h4 class="fw-bold text-white mb-1">{{ billetSelectionne.siteNom }}</h4>
+              <p class="text-warning small mb-3">🧭 {{ billetSelectionne.circuitNom }}</p>
+
+              <div class="p-3 rounded-3 small d-grid gap-2 mb-3" style="background: rgba(6, 13, 26, 0.65); border: 1px solid rgba(229, 160, 36, 0.2);">
+                <div class="d-flex justify-content-between">
+                  <span class="text-white-50">Titulaire :</span>
+                  <strong class="text-white">{{ billetSelectionne.nomReservant }}</strong>
+                </div>
+                <div class="d-flex justify-content-between">
+                  <span class="text-white-50">Date &amp; Heure de visite :</span>
+                  <strong class="text-warning">{{ billetSelectionne.dateVisite }}</strong>
+                </div>
+                <div class="d-flex justify-content-between">
+                  <span class="text-white-50">Guide certifié affecté :</span>
+                  <strong class="text-white">{{ billetSelectionne.guide }}</strong>
+                </div>
+                <div class="d-flex justify-content-between">
+                  <span class="text-white-50">Nombre de places :</span>
+                  <strong class="text-white">{{ billetSelectionne.nombrePlaces }} personne(s)</strong>
+                </div>
+                <div class="d-flex justify-content-between">
+                  <span class="text-white-50">Mode de paiement :</span>
+                  <strong class="text-success">{{ billetSelectionne.modePaiement }} ({{ billetSelectionne.montant | number:'1.0-0' }} FCFA)</strong>
+                </div>
+                <div class="d-flex justify-content-between">
+                  <span class="text-white-50">Contact :</span>
+                  <span class="text-white">{{ billetSelectionne.telephone }}</span>
+                </div>
+              </div>
+
+              <!-- Contenu encodé dans le QR -->
+              <div>
+                <span class="small fw-bold text-white-50 d-block mb-1">Données décodées par l'appareil photo / lecteur :</span>
+                <pre class="small p-2 rounded-3 text-warning font-monospace mb-0" style="background: rgba(0,0,0,0.4); font-size: .75rem; white-space: pre-wrap;">{{ billetSelectionne.contenuQrCode }}</pre>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <div class="modal-footer border-top border-light border-opacity-10 justify-content-between">
+          <div class="d-flex gap-2">
+            <button type="button" class="btn btn-outline-light rounded-pill px-3" (click)="imprimerBillet()">
+              🖨️ Imprimer le billet
+            </button>
+            <button *ngIf="!billetSelectionne.composte"
+                    type="button"
+                    class="btn btn-success rounded-pill px-3"
+                    (click)="composterBillet()">
+              ✓ Valider le compostage du touriste
+            </button>
+          </div>
+          <button type="button" class="btn btn-kasa-gold rounded-pill px-4" (click)="fermerBillet()">Fermer</button>
+        </div>
+
+      </div>
     </div>
   </div>
 </main>

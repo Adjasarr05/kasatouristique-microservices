@@ -1,20 +1,37 @@
 <main class="kasa-auth-section">
   <div class="container">
-    <div class="kasa-auth-card">
+    <div class="kasa-auth-card" style="max-width: 650px;">
       <div class="text-center mb-4">
         <div class="fs-5 mb-1">
           <span class="brand-kasa">Kasa</span><span class="brand-touristique">Touristique</span>
         </div>
-        <h2 class="fw-bold mb-1 text-white">Connexion</h2>
-        <p class="small text-muted mb-0">Accédez à votre espace patrimoine &amp; réservations en Casamance</p>
+        <h2 class="fw-bold mb-1 text-white">Connexion aux Espaces Métiers</h2>
+        <p class="small text-muted mb-0">Plateforme multi-acteurs de la Basse-Casamance (Ziguinchor, Oussouye, Bignona)</p>
       </div>
 
       <div class="alert alert-success small rounded-4" *ngIf="message">{{ message }}</div>
       <div class="alert alert-danger small rounded-4" *ngIf="erreur">{{ erreur }}</div>
 
+      <!-- Sélecteur rapide d'acteur pour la soutenance -->
+      <div class="mb-4 p-3 rounded-4" style="background: rgba(6, 13, 26, 0.6); border: 1px solid rgba(229, 160, 36, 0.3);">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <span class="small fw-bold text-warning">⚡ Choisissez un Acteur pour tester son rôle :</span>
+        </div>
+        <div class="d-flex flex-wrap gap-2">
+          <button *ngFor="let c of comptesTest"
+                  type="button"
+                  (click)="choisirCompte(c)"
+                  class="btn btn-sm btn-outline-light rounded-pill px-3 py-1 d-flex align-items-center gap-1"
+                  style="font-size: .82rem; border-color: rgba(229, 160, 36, 0.4);"
+                  [title]="c.description">
+            <span>{{ c.titre }}</span>
+          </button>
+        </div>
+      </div>
+
       <form (ngSubmit)="seConnecter()">
         <div class="mb-3">
-          <label class="form-label fw-semibold text-light small">Email</label>
+          <label class="form-label fw-semibold text-light small">Email de l'acteur</label>
           <input type="email" class="form-control rounded-pill" [(ngModel)]="email" name="email" placeholder="exemple@ziguinchor.sn" required autofocus/>
         </div>
         <div class="mb-3">
@@ -27,24 +44,29 @@
               <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>
               <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z"/>
             </svg>
-            <span>Connexion</span>
+            <span>Se connecter avec cet acteur</span>
           </button>
           <a routerLink="/register" class="btn btn-outline-gold rounded-pill py-2 d-flex align-items-center justify-content-center">
-            Créer un compte
+            Créer un nouveau compte
           </a>
         </div>
       </form>
 
+      <!-- Grille des Rôles et Responsabilités du projet -->
       <div class="kasa-test-accounts mt-4">
-        <p class="small mb-2 text-warning fw-semibold">Comptes de test (mot de passe : <strong>admin123</strong> pour tous) :</p>
-        <ul class="small text-muted mb-0 ps-3">
-          <li>Visiteur : visiteur&#64;ziguinchor.sn</li>
-          <li>Guide validé : guide&#64;ziguinchor.sn</li>
-          <li>Conservateur : conservateur&#64;ziguinchor.sn</li>
-          <li>Opérateur touristique : operateur&#64;ziguinchor.sn</li>
-          <li>Administrateur communal : admincommunal&#64;ziguinchor.sn</li>
-          <li>Super admin : superadmin&#64;ziguinchor.sn</li>
-        </ul>
+        <p class="small mb-2 text-warning fw-semibold">Rôles officiels définis dans KasaTouristique :</p>
+        <div class="row g-2 small">
+          <div class="col-md-6" *ngFor="let c of comptesTest">
+            <div class="p-2 rounded-3 border h-100" style="background: rgba(13, 26, 48, 0.7); border-color: rgba(229, 160, 36, 0.2) !important;">
+              <div class="fw-bold text-white d-flex justify-content-between align-items-center">
+                <span>{{ c.titre }}</span>
+                <span class="badge rounded-pill" [ngClass]="c.badgeCouleur" style="font-size: .68rem;">{{ c.role }}</span>
+              </div>
+              <div class="text-white-50 mt-1" style="font-size: .78rem;">{{ c.description }}</div>
+              <div class="text-warning mt-1 font-monospace" style="font-size: .75rem;">{{ c.email }}</div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>

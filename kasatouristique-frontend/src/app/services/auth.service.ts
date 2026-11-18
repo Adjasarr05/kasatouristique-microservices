@@ -2,12 +2,14 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { Router } from '@angular/router';
 
+export type UserRole = 'VISITEUR' | 'GUIDE' | 'CONSERVATEUR' | 'OPERATEUR_TOURISTIQUE' | 'ADMINISTRATEUR_COMMUNAL' | 'SUPER_ADMIN';
+
 export interface UserSession {
   id?: number;
   email: string;
   nom?: string;
   prenom?: string;
-  role?: string;
+  role: UserRole;
   telephone?: string;
   specialite?: string;
 }
@@ -39,6 +41,28 @@ export class AuthService {
 
   public estConnecte(): boolean {
     return this.currentUserValue !== null;
+  }
+
+  public aRole(roles: UserRole[]): boolean {
+    const user = this.currentUserValue;
+    if (!user) return false;
+    return roles.includes(user.role);
+  }
+
+  public estAdmin(): boolean {
+    return this.aRole(['ADMINISTRATEUR_COMMUNAL', 'SUPER_ADMIN']);
+  }
+
+  public estConservateur(): boolean {
+    return this.aRole(['CONSERVATEUR', 'ADMINISTRATEUR_COMMUNAL', 'SUPER_ADMIN']);
+  }
+
+  public estOperateur(): boolean {
+    return this.aRole(['OPERATEUR_TOURISTIQUE', 'ADMINISTRATEUR_COMMUNAL', 'SUPER_ADMIN']);
+  }
+
+  public estGuide(): boolean {
+    return this.aRole(['GUIDE', 'ADMINISTRATEUR_COMMUNAL', 'SUPER_ADMIN']);
   }
 
   public login(user: UserSession): void {
